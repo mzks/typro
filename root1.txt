@@ -1,0 +1,4304 @@
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Candle Decay, illustrate a time development of a certain value.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Georg Troska
+
+void candledecay()
+{
+   auto c1 = new TCanvas("c1","Candle Decay",800,600);
+   c1->Divide(2,1);
+   auto rng = new TRandom();
+   auto h1 = new TH2I("h1","Decay",1000,0,1000,20,0,20);
+
+   float myRand;
+   for (int i = 0; i < 19; i++) {
+      for (int j = 0; j < 1000000; j++) {
+         myRand = rng->Gaus(350+i*8,20+2*i);
+         h1->Fill(myRand,i);
+      }
+   }
+   h1->SetBarWidth(3);
+   h1->SetFillStyle(0);
+   h1->SetFillColor(kGray);
+   h1->SetLineColor(kBlue);
+   h1->GetYaxis()->SetTitle("time");
+   h1->GetXaxis()->SetTitle("probability density");
+
+   c1->cd(1);
+   h1->Draw("violiny(112000000)");
+   c1->cd(2);
+   auto h2 = (TH2I*)h1->Clone("h2");
+   h2->SetBarWidth(0.8);
+   h2->DrawCopy("candley2");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example showing how to combine the various candle plot options.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Georg Troska
+
+void candlehisto()
+{
+   TCanvas *c1 = new TCanvas("c1", "Candle Presets", 800, 600);
+   c1->Divide(3, 2);
+
+   TRandom *rng = new TRandom();
+   TH2I *h1 = new TH2I("h1", "Sin", 18, 0, 360, 100, -1.5, 1.5);
+   h1->GetXaxis()->SetTitle("Deg");
+
+   float myRand;
+   for (int i = 0; i < 360; i+= 10) {
+      for (int j = 0; j < 100; j++) {
+         myRand = rng->Gaus(sin(i * 3.14 / 180), 0.2);
+         h1->Fill(i, myRand);
+      }
+   }
+
+   for (int i = 1; i < 7; i++) {
+      c1->cd(i);
+      TString title = TString::Format("CANDLEX%d", i);
+      TH2I *myhist = (TH2I*)h1->DrawCopy(title);
+      myhist->SetTitle(title);
+   }
+
+   TCanvas *c2 = new TCanvas("c2", "Violin Presets", 800, 300);
+   c2->Divide(2, 1);
+
+   for (int i = 1; i < 3; i++) {
+      c2->cd(i);
+      TString title = TString::Format("VIOLINX%d", i);
+      TH2I *myhist = (TH2I*)h1->DrawCopy(title);
+      myhist->SetFillColor(kGray + 2);
+   }
+
+   TCanvas *c3 = new TCanvas("c3", "Playing with candle and violin-options", 800, 600);
+   c3->Divide(3, 2);
+   TString myopt[6] = {"1000000", "2000000", "3000000", "1112111", "112111", "112111"};
+   for (int i = 0; i < 6; i++) {
+      c3->cd(i + 1);
+      TString title = TString::Format("candlex(%s)", myopt[i].Data());
+      TH2I *myhist = (TH2I*)h1->DrawCopy(title);
+      myhist->SetFillColor(kYellow);
+      if (i == 4) {
+         TH2I *myhist2 = (TH2I*)h1->DrawCopy("candlex(1000000) same");
+         myhist2->SetFillColor(kRed);
+      }
+      if (i == 5) {
+         myhist->SetBarWidth(0.2);
+         myhist->SetBarOffset(0.25);
+         TH2I *myhist2 = (TH2I*)h1->DrawCopy("candlex(2000000) same");
+         myhist2->SetFillColor(kRed);
+         myhist2->SetBarWidth(0.6);
+         myhist2->SetBarOffset(-0.5);
+      }
+      myhist->SetTitle(title);
+   }
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example of candle plot with 2-D histograms.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Georg Troska
+
+void candleplot() {
+
+   gStyle->SetTimeOffset(0);
+   TDatime dateBegin(2010,1,1,0,0,0);
+   TDatime dateEnd(2011,1,1,0,0,0);
+
+   auto h1 = new TH2I("h1","Machine A + B",12,dateBegin.Convert(),dateEnd.Convert(),1000,0,1000);
+   auto h2 = new TH2I("h2","Machine B",12,dateBegin.Convert(),dateEnd.Convert(),1000,0,1000);
+
+   h1->GetXaxis()->SetTimeDisplay(1);
+   h1->GetXaxis()->SetTimeFormat("%m/%y");
+   h1->GetXaxis()->SetTitle("Date [month/year]");
+
+   float Rand;
+   for (int i = dateBegin.Convert(); i < dateEnd.Convert(); i+=86400*30) {
+      for (int j = 0; j < 1000; j++) {
+         Rand = gRandom->Gaus(500+sin(i/10000000.)*100,50); h1->Fill(i,Rand);
+         Rand = gRandom->Gaus(500+sin(i/11000000.)*100,70); h2->Fill(i,Rand);
+      }
+   }
+
+   h1->SetBarWidth(0.4);
+   h1->SetBarOffset(-0.25);
+   h1->SetFillColor(kYellow);
+   h1->SetFillStyle(1001);
+
+   h2->SetBarWidth(0.4);
+   h2->SetBarOffset(0.25);
+   h2->SetLineColor(kRed);
+   h2->SetFillColor(kGreen);
+
+   auto c1 = new TCanvas();
+
+   h1->Draw("candle2");
+   h2->Draw("candle3 same");
+
+   gPad->BuildLegend(0.78,0.695,0.980,0.935,"","f");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example showing how to combine the various candle plot options.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Georg Troska
+
+void candleplotoption()
+{
+   TCanvas *c1 = new TCanvas("c1","Candle Presets",800,600);
+   c1->Divide(3,2);
+
+   TRandom *rng = new TRandom();
+   TH2I *h1 = new TH2I("h1","Sin",18,0,360,300,-1.5,1.5);
+   h1->GetXaxis()->SetTitle("Deg");
+   float myRand;
+   for (int i = 0; i < 360; i+=10) {
+      for (int j = 0; j < 100; j++) {
+         myRand = rng->Gaus(sin(i*3.14/180),0.2);
+         h1->Fill(i,myRand);
+      }
+   }
+   for (int i = 1; i < 7; i++) {
+      c1->cd(i);
+      char str[16];
+      sprintf(str,"candlex%d",i);
+      TH2I * myhist = (TH2I*)h1->DrawCopy(str);
+      myhist->SetTitle(str);
+   }
+
+   TCanvas *c2 = new TCanvas("c2","Candle Individual",800,600);
+   c2->Divide(4,4);
+   char myopt[16][8] = {"0","1","11","21","31","30","111","311","301","1111","2321","12111","112111","212111","312111"};
+   for (int i = 0; i < 15; i++) {
+      c2->cd(i+1);
+      char str[16];
+      sprintf(str, "candlex(%s)",myopt[i]);
+      TH2I * myhist = (TH2I*)h1->DrawCopy(str);
+      myhist->SetTitle(str);
+   }
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example showing how a THStack with candle plot option.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \authors Georg Troska, Olivier Couet
+
+void candleplotstack()
+{
+   gStyle->SetTimeOffset(0);
+   TRandom *rng       = new TRandom();
+   TDatime *dateBegin = new TDatime(2010,1,1,0,0,0);
+   TDatime *dateEnd   = new TDatime(2011,1,1,0,0,0);
+   int bins = 1000;
+   TH2I *h1 = new TH2I("h1","Machine A",6,dateBegin->Convert(),dateEnd->Convert(),bins,0,1000);
+   TH2I *h2 = new TH2I("h2","Machine B",6,dateBegin->Convert(),dateEnd->Convert(),bins,0,1000);
+   TH2I *hsum = new TH2I("h4","Sum",6,dateBegin->Convert(),dateEnd->Convert(),bins,0,1000);
+
+   float Rand;
+   for (int i = dateBegin->Convert(); i < dateEnd->Convert(); i+=86400*30) {
+      for (int j = 0; j < 1000; j++) {
+         Rand = rng->Gaus(500+sin(i/10000000.)*100,50); h1->Fill(i,Rand); hsum->Fill(i,Rand);
+         Rand = rng->Gaus(500+sin(i/12000000.)*100,50); h2->Fill(i,Rand); hsum->Fill(i,Rand);
+      }
+   }
+
+   h2->SetLineColor(kRed);
+   hsum->SetFillColor(kGreen);
+   TCanvas *c1 = new TCanvas();
+
+   THStack *hs = new THStack("hs","Machine A+B");
+   hs->Add(h1);
+   hs->Add(h2,"candle2");
+   hs->Add(hsum, "violin1");
+   hs->Draw("candle3");
+   hs->GetXaxis()->SetNdivisions(410);
+   
+   gPad->SetGrid(1,0);
+
+   hs->GetXaxis()->SetTimeDisplay(1);
+   hs->GetXaxis()->SetTimeFormat("%m/%y");
+   hs->GetXaxis()->SetTitle("Date [month/year]");
+
+   c1->Modified();
+
+   gPad->BuildLegend(0.75,0.75,0.95,0.95,"");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example of candle plot showing the whiskers definition.
+///
+/// \macro_image
+/// \macro_output
+/// \macro_code
+///
+/// \author Georg Troska
+
+void candleplotwhiskers() {
+   auto c1 = new TCanvas("c1","Candle Presets",700,800);
+   c1->Divide(1,2);
+
+   auto rng = new TRandom();
+   auto h1 = new TH2I("h1","Gaus",100,-5,5,1,0,1);
+   auto h2 = new TH1I("h2","Gaus",100,-5,5);
+
+   h1->GetXaxis()->SetTitle("Standard deviation #sigma");
+   h2->GetXaxis()->SetTitle("Standard deviation #sigma");
+   h2->GetYaxis()->SetTitle("dN/d#sigma");
+
+   float myRand;
+   for (int i = 0; i < 100000; i++) {
+       myRand = rng->Gaus(0,1);
+       h1->Fill(myRand,0);
+       h2->Fill(myRand);
+   }
+
+   Double_t *q = new Double_t[3];
+   Double_t *p = new Double_t[3];
+   q[0] = 0.; q[1] = 0.; q[2] = 0.;
+   p[0] = 0.25; p[1] = 0.5; p[2] = 0.75;
+
+   h2->GetQuantiles(3,q,p);
+   cout << "Q1 (-25%): " << q[0] << " Median: " << q[1] << " Q3 (+25%): " << q[2] << endl;
+   double iqr = q[2]-q[0];
+   auto mygaus_1_middle = new TF1("mygaus_1_middle","gaus",q[0],q[2]);
+   auto mygaus_1_left   = new TF1("mygaus_1_left","gaus",q[0]-1.5*iqr,q[0]);
+   mygaus_1_left->SetLineColor(kGreen);
+   auto mygaus_1_right  = new TF1("mygaus_1_right","gaus",q[2],q[2]+1.5*iqr);
+   mygaus_1_right->SetLineColor(kGreen);
+   c1->cd(1);
+   h1->SetLineWidth(3);
+   h1->SetFillStyle(0);
+   h1->Draw("candley2 scat");
+
+   c1->cd(2);
+   h2->Draw("");
+   h2->Fit("mygaus_1_left","R");
+   mygaus_1_left->Draw("same");
+   auto l3 = new TLine(q[0]-1.5*iqr,0,q[0]-1.5*iqr,mygaus_1_left->Eval(q[0]-1.5*iqr));
+   l3->SetLineColor(kGreen); l3->SetLineWidth(2);      l3->Draw("");
+   auto l1 = new TLine(q[0]        ,0,q[0]        ,mygaus_1_left->Eval(q[0]));
+   l1->SetLineWidth(2);      l1->SetLineColor(kGreen); l1->Draw("");
+
+   h2->Fit("mygaus_1_right","R","");
+   mygaus_1_right->Draw("same");
+   auto l4 = new TLine(q[2]+1.5*iqr,0,q[2]+1.5*iqr,mygaus_1_left->Eval(q[2]+1.5*iqr));
+   l4->SetLineColor(kGreen); l4->SetLineWidth(2);      l4->Draw("");
+   auto l5 = new TLine(q[2]        ,0,q[2]        ,mygaus_1_right->Eval(q[2]));
+   l5->SetLineWidth(2);      l5->SetLineColor(kGreen); l5->Draw("");
+
+   h2->Fit("mygaus_1_middle","R");
+   mygaus_1_middle->Draw("same");
+
+   //In principal one could calculate these values by h2->Integral() as well
+   auto t = new TText(); t->SetTextFont(42);
+   t->DrawText(0,mygaus_1_middle->Eval(0)/2,"50%");
+   t->DrawText(-1.5,mygaus_1_middle->Eval(-1.5)/2,"24.65%");
+   t->DrawText(+1,mygaus_1_middle->Eval(+1.5)/2,"24.65%");
+   t->DrawText(q[0]-1.5*iqr,1000,Form("%.3f",q[0]-1.5*iqr))->SetTextAngle(90);
+   t->DrawText(q[2]+1.5*iqr,1000,Form("%.3f",q[2]+1.5*iqr))->SetTextAngle(90);
+   t->DrawText(q[0],1000,Form("%.3f",q[0]))->SetTextAngle(90);
+   t->DrawText(q[2],1000,Form("%.3f",q[2]))->SetTextAngle(90);
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Candle Scaled, illustrates what scaleing does on candle and violin charts.
+/// Please try to modify the static functions SetScaledCandle and SetScaledViolin
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Georg Troska
+
+void candlescaled()
+{
+   TCanvas *c1 = new TCanvas("c1","TCandle Scaled",800,600);
+   c1->Divide(2,2);
+   TRandom *rng = new TRandom();
+   TH2I *h1 = new TH2I("h1","GausXY",20,-5,5,100,-5,5);
+   TH2I *h3 = new TH2I("h3","GausXY",100,-5,5,20,-5,5);
+
+   float myRand1;
+   float myRand2;
+   
+   for (int j = 0; j < 100000; j++) {
+      myRand1 = rng->Gaus(0,1);
+      myRand2 = rng->Gaus(0,1);
+      h1->Fill(myRand1, myRand2);
+      h3->Fill(myRand1, myRand2);
+   }
+   
+   
+   c1->cd(1);
+   
+   TCandle::SetScaledCandle(true); /* This is a global option for all existing candles, default is false */
+   
+   h1->SetTitle("CandleX scaled");
+   h1->DrawCopy("candleX2");
+   c1->cd(2);
+   
+   h3->SetTitle("CandleY scaled");
+   h3->DrawCopy("candleY2");
+   
+   TCandle::SetScaledViolin(true); /* This is a global option for all existing violin, default is true */
+   TH2I *h2 = (TH2I*)h1->Clone();
+   h2->SetFillStyle(0);
+   h2->SetFillColor(kGray+2);
+   h2->SetLineColor(kBlue);
+   TH2I *h4 = (TH2I*)h3->Clone();
+   h4->SetFillStyle(0);
+   h4->SetFillColor(kGray+2);
+   h4->SetLineColor(kBlue);
+   
+   c1->cd(3);
+   h2->SetTitle("ViolinX unscaled");
+   h2->DrawCopy("ViolinX");
+   c1->cd(4);
+   h4->SetTitle("ViolinY unscaled");
+   h4->DrawCopy("ViolinY");
+   
+     
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Getting Contours From TH2D.
+///
+/// #### Image produced by `.x ContourList.C`
+/// The contours values are drawn next to each contour.
+/// \macro_image
+///
+/// #### Output produced by `.x ContourList.C`
+/// It shows that 6 contours and 12 graphs were found.
+/// \macro_output
+///
+/// #### `ContourList.C`
+/// \macro_code
+///
+/// \authors Josh de Bever (CSI Medical Physics Group, The University of Western Ontario, London, Ontario, Canada), Olivier Couet
+
+Double_t SawTooth(Double_t x, Double_t WaveLen);
+
+TCanvas *ContourList(){
+
+   const Double_t PI = TMath::Pi();
+
+   TCanvas* c = new TCanvas("c","Contour List",0,0,600,600);
+   c->SetRightMargin(0.15);
+   c->SetTopMargin(0.15);
+
+   Int_t i, j;
+
+   Int_t nZsamples   = 80;
+   Int_t nPhiSamples = 80;
+
+   Double_t HofZwavelength = 4.0;       // 4 meters
+   Double_t dZ             =  HofZwavelength/(Double_t)(nZsamples - 1);
+   Double_t dPhi           = 2*PI/(Double_t)(nPhiSamples - 1);
+
+   TArrayD z(nZsamples);
+   TArrayD HofZ(nZsamples);
+   TArrayD phi(nPhiSamples);
+   TArrayD FofPhi(nPhiSamples);
+
+   // Discretized Z and Phi Values
+   for ( i = 0; i < nZsamples; i++) {
+      z[i] = (i)*dZ - HofZwavelength/2.0;
+      HofZ[i] = SawTooth(z[i], HofZwavelength);
+   }
+
+   for(Int_t i=0; i < nPhiSamples; i++){
+      phi[i] = (i)*dPhi;
+      FofPhi[i] = sin(phi[i]);
+   }
+
+   // Create Histogram
+   TH2D *HistStreamFn = new TH2D("HstreamFn",
+   "#splitline{Histogram with negative and positive contents. Six contours are defined.}{It is plotted with options CONT LIST to retrieve the contours points in TGraphs}",
+   nZsamples, z[0], z[nZsamples-1], nPhiSamples, phi[0], phi[nPhiSamples-1]);
+
+   // Load Histogram Data
+   for (Int_t i = 0; i < nZsamples; i++) {
+      for(Int_t j = 0; j < nPhiSamples; j++){
+         HistStreamFn->SetBinContent(i,j, HofZ[i]*FofPhi[j]);
+      }
+   }
+
+   gStyle->SetOptStat(0);
+   gStyle->SetTitleW(0.99);
+   gStyle->SetTitleH(0.08);
+
+   Double_t contours[6];
+   contours[0] = -0.7;
+   contours[1] = -0.5;
+   contours[2] = -0.1;
+   contours[3] =  0.1;
+   contours[4] =  0.4;
+   contours[5] =  0.8;
+
+   HistStreamFn->SetContour(6, contours);
+
+   // Draw contours as filled regions, and Save points
+   HistStreamFn->Draw("CONT Z LIST");
+   c->Update(); // Needed to force the plotting and retrieve the contours in TGraphs
+
+   // Get Contours
+   TObjArray *conts = (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
+   TList* contLevel = NULL;
+   TGraph* curv     = NULL;
+   TGraph* gc       = NULL;
+
+   Int_t nGraphs    = 0;
+   Int_t TotalConts = 0;
+
+   if (conts == NULL){
+      printf("*** No Contours Were Extracted!\n");
+      TotalConts = 0;
+      return 0;
+   } else {
+      TotalConts = conts->GetSize();
+   }
+
+   printf("TotalConts = %d\n", TotalConts);
+
+   for(i = 0; i < TotalConts; i++){
+      contLevel = (TList*)conts->At(i);
+      printf("Contour %d has %d Graphs\n", i, contLevel->GetSize());
+      nGraphs += contLevel->GetSize();
+   }
+
+   nGraphs = 0;
+
+   TCanvas* c1 = new TCanvas("c1","Contour List",610,0,600,600);
+   c1->SetTopMargin(0.15);
+   TH2F *hr = new TH2F("hr",
+   "#splitline{Negative contours are returned first (highest to lowest). Positive contours are returned from}{lowest to highest. On this plot Negative contours are drawn in red and positive contours in blue.}",
+   2, -2, 2, 2, 0, 6.5);
+
+   hr->Draw();
+   Double_t xval0, yval0, zval0;
+   TLatex l;
+   l.SetTextSize(0.03);
+   char val[20];
+
+   for(i = 0; i < TotalConts; i++){
+      contLevel = (TList*)conts->At(i);
+      if (i<3) zval0 = contours[2-i];
+      else     zval0 = contours[i];
+      printf("Z-Level Passed in as:  Z = %f\n", zval0);
+
+      // Get first graph from list on curves on this level
+      curv = (TGraph*)contLevel->First();
+      for(j = 0; j < contLevel->GetSize(); j++){
+         curv->GetPoint(0, xval0, yval0);
+         if (zval0<0) curv->SetLineColor(kRed);
+         if (zval0>0) curv->SetLineColor(kBlue);
+         nGraphs ++;
+         printf("\tGraph: %d  -- %d Elements\n", nGraphs,curv->GetN());
+
+         // Draw clones of the graphs to avoid deletions in case the 1st
+         // pad is redrawn.
+         gc = (TGraph*)curv->Clone();
+         gc->Draw("C");
+
+         sprintf(val,"%g",zval0);
+         l.DrawLatex(xval0,yval0,val);
+         curv = (TGraph*)contLevel->After(curv); // Get Next graph
+      }
+   }
+   c1->Update();
+   printf("\n\n\tExtracted %d Contours and %d Graphs \n", TotalConts, nGraphs );
+   gStyle->SetTitleW(0.);
+   gStyle->SetTitleH(0.);
+   return c1;
+}
+
+
+Double_t SawTooth(Double_t x, Double_t WaveLen){
+
+// This function is specific to a sawtooth function with period
+// WaveLen, symmetric about x = 0, and with amplitude = 1. Each segment
+// is 1/4 of the wavelength.
+//
+//           |
+//      /\   |
+//     /  \  |
+//    /    \ |
+//   /      \
+//  /--------\--------/------------
+//           |\      /
+//           | \    /
+//           |  \  /
+//           |   \/
+//
+
+   Double_t y;
+   if ( (x < -WaveLen/2) || (x > WaveLen/2)) y = -99999999; // Error X out of bounds
+   if (x <= -WaveLen/4) {
+      y = x + 2.0;
+   } else if ((x > -WaveLen/4) && (x <= WaveLen/4)) {
+      y = -x ;
+   } else if (( x > WaveLen/4) && (x <= WaveLen/2)) {
+      y = x - 2.0;
+   }
+   return y;
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook -js
+/// Illustrate use of the TH1::GetCumulative method.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author M. Schiller
+
+#include <cassert>
+#include <cmath>
+
+#include "TH1.h"
+#include "TH1D.h"
+#include "TCanvas.h"
+#include "TRandom.h"
+
+TCanvas *cumulative()
+{
+   TH1* h = new TH1D("h", "h", 100, -5., 5.);
+   gRandom->SetSeed();
+   h->FillRandom("gaus", 1u << 16);
+   // get the cumulative of h
+   TH1* hc = h->GetCumulative();
+   // check that c has the "right" contents
+   Double_t* integral = h->GetIntegral();
+   for (Int_t i = 1; i <= hc->GetNbinsX(); ++i) {
+      assert(std::abs(integral[i] * h->GetEntries() - hc->GetBinContent(i)) < 1e-7);
+   }
+   // draw histogram together with its cumulative distribution
+   TCanvas* c = new TCanvas;
+   c->Divide(1,2);
+   c->cd(1);
+   h->Draw();
+   c->cd(2);
+   hc->Draw();
+   c->Update();
+
+   return c;
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Display the various 2-d drawing options
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+void draw2dopt()
+{
+   gStyle->SetOptStat(0);
+   gStyle->SetCanvasColor(33);
+   gStyle->SetFrameFillColor(18);
+   TF2 *f2 = new TF2("f2","xygaus + xygaus(5) + xylandau(10)",-4,4,-4,4);
+   Double_t params[] = {130,-1.4,1.8,1.5,1, 150,2,0.5,-2,0.5, 3600,-2,0.7,-3,0.3};
+   f2->SetParameters(params);
+   auto h2 = new TH2F("h2","xygaus + xygaus(5) + xylandau(10)",20,-4,4,20,-4,4);
+   h2->SetFillColor(46);
+   h2->FillRandom("f2",40000);
+   auto pl = new TPaveLabel();
+
+   //basic 2-d options
+   Float_t xMin=0.67, yMin=0.875, xMax=0.85, yMax=0.95;
+   Int_t cancolor = 17;
+   auto c2h = new TCanvas("c2h","2-d options",10,10,800,600);
+   c2h->Divide(2,2);
+   c2h->SetFillColor(cancolor);
+   c2h->cd(1);
+   h2->Draw();       pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"SCAT","brNDC");
+   c2h->cd(2);
+   h2->Draw("box");  pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"BOX","brNDC");
+   c2h->cd(3);
+   h2->Draw("arr");  pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"ARR","brNDC");
+   c2h->cd(4);
+   h2->Draw("colz"); pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"COLZ","brNDC");
+   c2h->Update();
+
+   //text option
+   auto ctext = new TCanvas("ctext","text option",50,50,800,600);
+   gPad->SetGrid();
+   ctext->SetFillColor(cancolor);
+   ctext->SetGrid();
+   h2->Draw("text"); pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"TEXT","brNDC");
+   ctext->Update();
+
+   //contour options
+   auto cont = new TCanvas("contours","contours",100,100,800,600);
+   cont->Divide(2,2);
+   gPad->SetGrid();
+   cont->SetFillColor(cancolor);
+   cont->cd(1);
+   h2->Draw("contz"); pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"CONTZ","brNDC");
+   cont->cd(2);
+   gPad->SetGrid();
+   h2->Draw("cont1"); pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"CONT1","brNDC");
+   cont->cd(3);
+   gPad->SetGrid();
+   h2->Draw("cont2"); pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"CONT2","brNDC");
+   cont->cd(4);
+   gPad->SetGrid();
+   h2->Draw("cont3"); pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"CONT3","brNDC");
+   cont->Update();
+
+   //lego options
+   auto lego = new TCanvas("lego","lego options",150,150,800,600);
+   lego->Divide(2,2);
+   lego->SetFillColor(cancolor);
+   lego->cd(1);
+   h2->Draw("lego");     pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"LEGO","brNDC");
+   lego->cd(2);
+   h2->Draw("lego1");    pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"LEGO1","brNDC");
+   lego->cd(3);
+   gPad->SetTheta(61); gPad->SetPhi(-82);
+   h2->Draw("surf1pol"); pl->DrawPaveLabel(xMin,yMin,xMax+0.05,yMax,"SURF1POL","brNDC");
+   lego->cd(4);
+   gPad->SetTheta(21); gPad->SetPhi(-90);
+   h2->Draw("surf1cyl"); pl->DrawPaveLabel(xMin,yMin,xMax+0.05,yMax,"SURF1CYL","brNDC");
+   lego->Update();
+
+   //surface options
+   auto surf = new TCanvas("surfopt","surface options",200,200,800,600);
+   surf->Divide(2,2);
+   surf->SetFillColor(cancolor);
+   surf->cd(1);
+   h2->Draw("surf1");   pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"SURF1","brNDC");
+   surf->cd(2);
+   h2->Draw("surf2z");  pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"SURF2Z","brNDC");
+   surf->cd(3);
+   h2->Draw("surf3");   pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"SURF3","brNDC");
+   surf->cd(4);
+   h2->Draw("surf4");   pl->DrawPaveLabel(xMin,yMin,xMax,yMax,"SURF4","brNDC");
+   surf->Update();
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook -js
+/// Show the slice of a TH2 following the mouse position.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+
+void DynamicSlice()
+{
+   // Create a new canvas.
+   TCanvas* c1 = new TCanvas("c1","Dynamic Slice Example",10,10,700,500);
+
+   //create a 2-d histogram, fill and draw it
+   TH2F *hpxpy  = new TH2F("hpxpy","py vs px",40,-4,4,40,-4,4);
+   hpxpy->SetStats(0);
+   Double_t px,py;
+   for (Int_t i = 0; i < 50000; i++) {
+      gRandom->Rannor(px,py);
+      hpxpy->Fill(px,py);
+   }
+   hpxpy->Draw("col");
+
+   //Add a TExec object to the canvas
+   c1->AddExec("dynamic","DynamicExec()");
+}
+
+void DynamicExec()
+{
+   // Example of function called when a mouse event occurs in a pad.
+   // When moving the mouse in the canvas, a second canvas shows the
+   // projection along X of the bin corresponding to the Y position
+   // of the mouse. The resulting histogram is fitted with a gaussian.
+   // A "dynamic" line shows the current bin position in Y.
+   // This more elaborated example can be used as a starting point
+   // to develop more powerful interactive applications exploiting Cling
+   // as a development engine.
+
+   TObject *select = gPad->GetSelected();
+   if(!select) return;
+   if (!select->InheritsFrom(TH2::Class())) {gPad->SetUniqueID(0); return;}
+   TH2 *h = (TH2*)select;
+   gPad->GetCanvas()->FeedbackMode(kTRUE);
+
+   //erase old position and draw a line at current position
+   int pyold = gPad->GetUniqueID();
+   int px = gPad->GetEventX();
+   int py = gPad->GetEventY();
+   float uxmin = gPad->GetUxmin();
+   float uxmax = gPad->GetUxmax();
+   int pxmin = gPad->XtoAbsPixel(uxmin);
+   int pxmax = gPad->XtoAbsPixel(uxmax);
+   if(pyold) gVirtualX->DrawLine(pxmin,pyold,pxmax,pyold);
+   gVirtualX->DrawLine(pxmin,py,pxmax,py);
+   gPad->SetUniqueID(py);
+   Float_t upy = gPad->AbsPixeltoY(py);
+   Float_t y = gPad->PadtoY(upy);
+
+   //create or set the new canvas c2
+   TVirtualPad *padsav = gPad;
+   TCanvas *c2 = (TCanvas*)gROOT->GetListOfCanvases()->FindObject("c2");
+   if(c2) delete c2->GetPrimitive("Projection");
+   else   c2 = new TCanvas("c2","Projection Canvas",710,10,700,500);
+   c2->SetGrid();
+   c2->cd();
+
+   //draw slice corresponding to mouse position
+   Int_t biny = h->GetYaxis()->FindBin(y);
+   TH1D *hp = h->ProjectionX("",biny,biny);
+   hp->SetFillColor(38);
+   char title[80];
+   sprintf(title,"Projection of biny=%d",biny);
+   hp->SetName("Projection");
+   hp->SetTitle(title);
+   hp->Fit("gaus","ql");
+   hp->GetFunction("gaus")->SetLineColor(kRed);
+   hp->GetFunction("gaus")->SetLineWidth(6);
+   c2->Update();
+   padsav->cd();
+}
+/// \file
+/// \ingroup tutorial_hist
+/// Echo object at mouse position.
+/// Example of macro called when a pad is redrawn
+/// one must create a TExec object in the following way
+/// ~~~{.cpp}
+/// TExec ex("ex",".x exec1.C");
+/// ex.Draw();
+/// ~~~
+/// this macro prints the bin number and the bin content when one clicks
+/// on the histogram contour of any histogram in a pad
+///
+/// \macro_code
+///
+/// \author Rene Brun
+
+
+void exec1()
+{
+   if (!gPad) {
+      Error("exec1", "gPad is null, you are not supposed to run this macro");
+      return;
+   }
+
+   int event = gPad->GetEvent();
+   if (event != 11) return;
+   int px = gPad->GetEventX();
+   TObject *select = gPad->GetSelected();
+   if (!select) return;
+   if (select->InheritsFrom(TH1::Class())) {
+      TH1 *h = (TH1*)select;
+      Float_t xx = gPad->AbsPixeltoX(px);
+      Float_t x  = gPad->PadtoX(xx);
+      Int_t binx = h->GetXaxis()->FindBin(x);
+      printf("event=%d, hist:%s, bin=%d, content=%f\n",event,h->GetName(),binx,h->GetBinContent(binx));
+   }
+}
+
+/// \file
+/// \ingroup tutorial_hist
+/// Echo object at mouse position and show a graphics line.
+/// Example of macro called when a mouse event occurs in a pad.
+///
+/// Example:
+/// ~~~{.cpp}
+/// Root > TFile f("hsimple.root");
+/// Root > hpxpy.Draw();
+/// Root > c1.AddExec("ex2",".x exec2.C");
+/// ~~~
+/// When moving the mouse in the canvas, a second canvas shows the
+/// projection along X of the bin corresponding to the Y position
+/// of the mouse. The resulting histogram is fitted with a gaussian.
+/// A "dynamic" line shows the current bin position in Y.
+/// This more elaborated example can be used as a starting point
+/// to develop more powerful interactive applications exploiting CINT
+/// as a development engine.
+///
+/// \macro_code
+///
+/// \author Rene Brun
+
+void exec2()
+{
+
+   if (!gPad) {
+      Error("exec2", "gPad is null, you are not supposed to run this macro");
+      return;
+   }
+
+
+   TObject *select = gPad->GetSelected();
+   if(!select) return;
+   if (!select->InheritsFrom(TH2::Class())) {gPad->SetUniqueID(0); return;}
+   gPad->GetCanvas()->FeedbackMode(kTRUE);
+
+   //erase old position and draw a line at current position
+   int pyold = gPad->GetUniqueID();
+   int px = gPad->GetEventX();
+   int py = gPad->GetEventY();
+   float uxmin = gPad->GetUxmin();
+   float uxmax = gPad->GetUxmax();
+   int pxmin = gPad->XtoAbsPixel(uxmin);
+   int pxmax = gPad->XtoAbsPixel(uxmax);
+   if(pyold) gVirtualX->DrawLine(pxmin,pyold,pxmax,pyold);
+   gVirtualX->DrawLine(pxmin,py,pxmax,py);
+   gPad->SetUniqueID(py);
+   Float_t upy = gPad->AbsPixeltoY(py);
+   Float_t y = gPad->PadtoY(upy);
+
+   //create or set the new canvas c2
+   TVirtualPad *padsav = gPad;
+   TCanvas *c2 = (TCanvas*)gROOT->GetListOfCanvases()->FindObject("c2");
+   if(c2) delete c2->GetPrimitive("Projection");
+   else   c2 = new TCanvas("c2");
+   c2->cd();
+
+   //draw slice corresponding to mouse position
+   TH2 *h = (TH2*)select;
+   Int_t biny = h->GetYaxis()->FindBin(y);
+   TH1D *hp = h->ProjectionX("",biny,biny);
+   char title[80];
+   sprintf(title,"Projection of biny=%d",biny);
+   hp->SetName("Projection");
+   hp->SetTitle(title);
+   hp->Fit("gaus","ql");
+   c2->Update();
+   padsav->cd();
+}
+
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook -js
+/// A TH2Poly build with Fibonacci numbers.
+///
+/// In mathematics, the Fibonacci sequence is a suite of integer in which
+/// every number is the sum of the two preceding one.
+///
+/// The first 10 Fibonacci numbers are:
+///
+/// 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, ...
+///
+/// This tutorial computes Fibonacci numbers and uses them to build a TH2Poly
+/// producing the "Fibonacci spiral" created by drawing circular arcs connecting
+/// the opposite corners of squares in the Fibonacci tiling.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+void Arc(int n, double a, double r, double *px, double *py);
+void AddFibonacciBin(TH2Poly *h2pf, double N);
+
+void Fibonacci(int N=7) {
+   // N = number of Fibonacci numbers > 1
+
+   TCanvas *C = new TCanvas("C", "C", 800, 600);
+   C->SetFrameLineWidth(0);
+
+   TH2Poly *h2pf = new TH2Poly(); // TH2Poly containing Fibonacci bins.
+   h2pf->SetTitle(Form("The first %d Fibonacci numbers",N));
+   h2pf->SetMarkerColor(kRed-2);
+   h2pf->SetStats(0);
+
+   double f0 = 0.;
+   double f1 = 1.;
+   double ft;
+
+   AddFibonacciBin(h2pf, f1);
+
+   for (int i=0; i<=N; i++) {
+      ft = f1;
+      f1 = f0 + f1;
+      f0 = ft;
+      AddFibonacciBin(h2pf, f1);
+   }
+
+   h2pf->Draw("A COL L TEXT");
+}
+
+void Arc(int n, double a, double r, double *px, double *py) {
+   // Add points on a arc of circle from point 2 to n-2
+
+   double da = TMath::Pi()/(2*(n-2)); // Angle delta
+
+   for (int i = 2; i<=n-2; i++) {
+      a     = a+da;
+      px[i] = r*TMath::Cos(a) + px[0];
+      py[i] = r*TMath::Sin(a) + py[0];
+   }
+}
+
+void AddFibonacciBin(TH2Poly *h2pf, double N) {
+   // Add to h2pf the bin corresponding to the Fibonacci number N
+
+   double X1 = 0.; //
+   double Y1 = 0.; // Current Fibonacci
+   double X2 = 1.; // square position.
+   double Y2 = 1.; //
+
+   static int    MoveId = 0;
+
+   static double T  = 1.; //Current Top limit of the bins
+   static double B  = 0.; //Current Bottom limit of the bins
+   static double L  = 0.; //Current Left limit of the bins
+   static double R  = 1.; //Current Right limit of the bins
+
+   const int NP = 50; // Number of point to build the current bin
+   double px[NP];     // Bin's X positions
+   double py[NP];     // Bin's Y positions
+
+   double pi2 = TMath::Pi()/2;
+
+   switch (MoveId) {
+      case 1:
+         R  = R+N;
+         X2 = R;
+         Y2 = T;
+         X1 = X2-N;
+         Y1 = Y2-N;
+         px[0]    = X1;
+         py[0]    = Y2;
+         px[1]    = X1;
+         py[1]    = Y1;
+         px[NP-1] = X2;
+         py[NP-1] = Y2;
+         Arc(NP,3*pi2,(double)N,px,py);
+         break;
+
+      case 2:
+         T  = T+N;
+         X2 = R;
+         Y2 = T;
+         X1 = X2-N;
+         Y1 = Y2-N;
+         px[0]    = X1;
+         py[0]    = Y1;
+         px[1]    = X2;
+         py[1]    = Y1;
+         px[NP-1] = X1;
+         py[NP-1] = Y2;
+         Arc(NP,0.,(double)N,px,py);
+         break;
+
+      case 3:
+         L  = L-N;
+         X1 = L;
+         Y1 = B;
+         X2 = X1+N;
+         Y2 = Y1+N;
+         px[0]    = X2;
+         py[0]    = Y1;
+         px[1]    = X2;
+         py[1]    = Y2;
+         px[NP-1] = X1;
+         py[NP-1] = Y1;
+         Arc(NP,pi2,(double)N,px,py);
+         break;
+
+      case 4:
+         B  = B-N;
+         X1 = L;
+         Y1 = B;
+         X2 = X1+N;
+         Y2 = Y1+N;
+         px[0]    = X2;
+         py[0]    = Y2;
+         px[1]    = X1;
+         py[1]    = Y2;
+         px[NP-1] = X2;
+         py[NP-1] = Y1;
+         Arc(NP,2*pi2,(double)N,px,py);
+         break;
+   }
+
+   if (MoveId==0) h2pf->AddBin(X1,Y1,X2,Y2); // First bin is a square
+   else           h2pf->AddBin(NP, px ,py);  // Other bins have an arc of circle
+
+   h2pf->Fill((X1+X2)/2.5, (Y1+Y2)/2.5, N);
+
+   MoveId++;
+   if (MoveId==5) MoveId=1;
+}
+
+
+/// \file
+/// \ingroup tutorial_hist
+/// Fill multiple histograms with different functions and automatic binning.
+/// Illustrates merging with the power-of-two autobin algorithm
+///
+/// \macro_output
+/// \macro_code
+///
+/// \date November 2017
+/// \author Gerardo Ganis
+
+#include "TF1.h"
+#include "TH1D.h"
+#include "TMath.h"
+#include "TF1.h"
+#include "TCanvas.h"
+#include "TRandom3.h"
+#include "TStatistic.h"
+#include "TFile.h"
+#include "TStyle.h"
+
+TF1 *gam = new TF1("gam", "1/(1+0.1*x*0.1*x)", -100., 100.);
+TF1 *gam1 = new TF1("gam", "1/(1+0.1*x*0.1*x)", -1., .25);
+TF1 *iga = new TF1("inv gam", "1.-1/(1+0.1*x*0.1*x)", -100., 100.);
+TF1 *iga1 = new TF1("inv gam", "1.-1/(1+0.1*x*0.1*x)", -.5, 1.);
+
+void fillhistosauto2p(unsigned opt = 1, unsigned n = 1001)
+{
+
+   UInt_t nh = 10;
+   UInt_t bsize = 1000;
+
+   TRandom3 rndm((Long64_t)time(0));
+
+   // Standard autobinning reference
+   auto href = new TH1D("myhref", "current", 50, 0., -1.);
+   href->SetBuffer(bsize);
+
+   // New autobinning 1-histo reference
+   auto href2 = new TH1D("myhref", "Auto P2, sequential", 50, 0., -1.);
+   href2->SetBit(TH1::kAutoBinPTwo);
+   href2->SetBuffer(bsize);
+
+   TList *hlist = new TList;
+
+   Int_t nbins = 50;
+
+   TStatistic x("min"), y("max"), d("dif"), a("mean"), r("rms");
+   for (UInt_t j = 0; j < nh; ++j) {
+      Double_t xmi = 1e15, xma = -1e15;
+      TStatistic xw("work");
+      TString hname = TString::Format("myh%d", j);
+      auto hw = new TH1D(hname.Data(), "Auto P2, merged", nbins, 0., -1.);
+      hw->SetBit(TH1::kAutoBinPTwo);
+      hw->SetBuffer(bsize);
+
+      Double_t xhma, xhmi, ovf, unf;
+      Bool_t emptied = kFALSE, tofill = kTRUE;
+      Bool_t buffering = kTRUE;
+      for (UInt_t i = 0; i < n; ++i) {
+
+         Double_t xx;
+         switch (opt) {
+         case 1: xx = rndm.Gaus(3, 1); break;
+         case 2: xx = rndm.Rndm() * 100. - 50.; break;
+         case 3: xx = gam->GetRandom(); break;
+         case 4: xx = gam1->GetRandom(); break;
+         case 5: xx = iga->GetRandom(); break;
+         case 6: xx = iga1->GetRandom(); break;
+         default: xx = rndm.Gaus(0, 1);
+         }
+
+         if (buffering) {
+            if (xx > xma)
+               xma = xx;
+            if (xx < xmi)
+               xmi = xx;
+            xw.Fill(xx);
+         }
+         hw->Fill(xx);
+         href->Fill(xx);
+         href2->Fill(xx);
+         if (!hw->GetBuffer()) {
+            // Not buffering anymore
+            buffering = kFALSE;
+         }
+      }
+      x.Fill(xmi);
+      y.Fill(xma);
+      d.Fill(xma - xmi);
+      a.Fill(xw.GetMean());
+      r.Fill(xw.GetRMS());
+
+      hlist->Add(hw);
+   }
+
+   x.Print();
+   y.Print();
+   d.Print();
+   a.Print();
+   r.Print();
+
+   TH1D *h0 = (TH1D *)hlist->First();
+   hlist->Remove(h0);
+   if (!h0->Merge(hlist))
+      return;
+
+   gStyle->SetOptStat(111110);
+
+   if (gROOT->GetListOfCanvases()->FindObject("c3"))
+      delete gROOT->GetListOfCanvases()->FindObject("c3");
+   TCanvas *c3 = new TCanvas("c3", "c3", 800, 800);
+   c3->Divide(1, 3);
+   c3->cd(1);
+   h0->StatOverflows();
+   h0->DrawClone("HIST");
+
+   c3->cd(2);
+   href2->StatOverflows();
+   href2->DrawClone();
+
+   c3->cd(3);
+   href->StatOverflows();
+   href->DrawClone();
+   c3->Update();
+   std::cout << " ent: " << h0->GetEntries() << "\n";
+   h0->Print();
+   href->Print();
+
+   hlist->SetOwner(kTRUE);
+   delete hlist;
+   delete href;
+   delete href2;
+   delete h0;
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Fill a 1-D histogram from a parametric function.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+void fillrandom() {
+   TCanvas *c1 = new TCanvas("c1","The FillRandom example",200,10,700,900);
+
+   auto pad1 = new TPad("pad1","The pad with the function",0.05,0.50,0.95,0.95);
+   auto pad2 = new TPad("pad2","The pad with the histogram",0.05,0.05,0.95,0.45);
+   pad1->Draw();
+   pad2->Draw();
+   pad1->cd();
+
+   gBenchmark->Start("fillrandom");
+   //
+   // A function (any dimension) or a formula may reference
+   // an already defined formula
+   //
+   auto form1 = new TFormula("form1","abs(sin(x)/x)");
+   auto sqroot = new TF1("sqroot","x*gaus(0) + [3]*form1",0,10);
+   sqroot->SetParameters(10,4,1,20);
+   pad1->SetGridx();
+   pad1->SetGridy();
+   pad1->GetFrame()->SetBorderMode(-1);
+   pad1->GetFrame()->SetBorderSize(5);
+   sqroot->SetLineColor(4);
+   sqroot->SetLineWidth(6);
+   sqroot->Draw();
+   auto lfunction = new TPaveLabel(5,39,9.8,46,"The sqroot function");
+   lfunction->Draw();
+   c1->Update();
+
+   //
+   // Create a one dimensional histogram (one float per bin)
+   // and fill it following the distribution in function sqroot.
+   //
+   pad2->cd();
+   pad2->GetFrame()->SetBorderMode(-1);
+   pad2->GetFrame()->SetBorderSize(5);
+   auto h1f = new TH1F("h1f","Test random numbers",200,0,10);
+   h1f->SetFillColor(45);
+   h1f->FillRandom("sqroot",10000);
+   h1f->Draw();
+   c1->Update();
+   //
+   // Open a ROOT file and save the formula, function and histogram
+   //
+   TFile myfile("fillrandom.root","RECREATE");
+   form1->Write();
+   sqroot->Write();
+   h1f->Write();
+   gBenchmark->Show("fillrandom");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Make a contour plot and get the first contour in a TPolyMarker.
+/// This macro generates a color contour plot by selecting entries
+/// from an ntuple file.
+/// The TGraph object corresponding to the first contour line is
+/// accessed and displayed into a separate canvas.
+///
+/// \macro_code
+///
+/// \author Rene Brun
+
+void FirstContour()
+{
+   TString dir = gROOT->GetTutorialDir();
+   dir.Append("/hsimple.C");
+   dir.ReplaceAll("/./","/");
+   if (!gInterpreter->IsLoaded(dir.Data())) gInterpreter->LoadMacro(dir.Data());
+   TFile *file = (TFile*)gROOT->ProcessLineFast("hsimple(1)");
+   if (!file) return;
+   TTree *ntuple = (TTree*)file->Get("ntuple");
+
+   TCanvas *c1 = new TCanvas("c1","Contours",10,10,800,600);
+   ntuple->Draw("py:px","px*px+py*py < 20", "contz,list");
+
+   //we must call Update to force the canvas to be painted.  When
+   //painting the contour plot, the list of contours is generated
+   //and a reference to it added to the Root list of special objects
+   c1->Update();
+
+   TCanvas *c2 = new TCanvas("c2","First contour",100,100,800,600);
+
+
+   TObjArray *contours =
+      (TObjArray*)gROOT->GetListOfSpecials()->FindObject("contours");
+   if (!contours) return;
+   TList *lcontour1 = (TList*)contours->At(0);
+   if (!lcontour1) return;
+   TGraph *gc1 = (TGraph*)lcontour1->First();
+   if (!gc1) return;
+   if (gc1->GetN() < 10) return;
+   gc1->SetMarkerStyle(21);
+   gc1->Draw("alp");
+
+   //We make a TCutG object with the array obtained from this graph
+   TCutG *cutg = new TCutG("cutg",gc1->GetN(),gc1->GetX(),gc1->GetY());
+
+   //We create a polymarker object with npmax points.
+   const Int_t npmax = 50000;
+   TPolyMarker *pm = new TPolyMarker(npmax);
+   Int_t np = 0;
+   while(1) {
+      Double_t x = -4 +8*gRandom->Rndm();
+      Double_t y = -4 +8*gRandom->Rndm();
+      if (cutg->IsInside(x,y)) {
+         pm->SetPoint(np,x,y);
+         np++;
+         if (np == npmax) break;
+      }
+   }
+   pm->Draw();
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook -js
+/// 1-D histogram drawing options.
+/// We attach (or generate) the ROOT file in `$ROOTSYS/tutorials/hsimple.root`
+/// or `$PWD/hsimple.root`
+/// We draw one histogram in different formats.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+#include "TInterpreter.h"
+#include "TCanvas.h"
+#include "TSystem.h"
+#include "TFile.h"
+#include "TH2.h"
+#include "TNtuple.h"
+#include "TPaveLabel.h"
+#include "TPaveText.h"
+#include "TFrame.h"
+#include "TSystem.h"
+#include "TInterpreter.h"
+
+void h1draw()
+{
+   TString dir = gROOT->GetTutorialDir();
+   dir.Append("/hsimple.C");
+   dir.ReplaceAll("/./","/");
+   if (gBenchmark->GetBench("hsimple") < 0) gInterpreter->LoadMacro(dir.Data());
+   TFile *example = (TFile*)gROOT->ProcessLineFast("hsimple(1)");
+   if (!example) return;
+
+   example->ls();
+   TH1 *hpx = (TH1*)example->Get("hpx");
+
+   TCanvas *c1 = new TCanvas("c1","Histogram Drawing Options",200,10,700,900);
+   TPad *pad1 = new TPad("pad1",
+      "The pad with the function",0.03,0.62,0.50,0.92);
+   TPad *pad2 = new TPad("pad2",
+      "The pad with the histogram",0.51,0.62,0.98,0.92);
+   TPad *pad3 = new TPad("pad3",
+      "The pad with the histogram",0.03,0.02,0.97,0.57);
+   pad1->Draw();
+   pad2->Draw();
+   pad3->Draw();
+
+   // Draw a global picture title
+   TPaveLabel *title = new TPaveLabel(0.1,0.94,0.9,0.98,
+                    "Drawing options for one dimensional histograms");
+   title->SetTextFont(52);
+   title->Draw();
+
+   // Draw histogram hpx in first pad with the default option.
+   pad1->cd();
+   pad1->GetFrame()->SetFillColor(18);
+   hpx->SetFillColor(45);
+   hpx->DrawCopy();
+   TPaveLabel *label1 = new TPaveLabel(-3.5,700,-1,800,"Default option");
+   label1->Draw();
+
+   // Draw hpx as a lego. Clicking on the lego area will show
+   // a "transparent cube" to guide you rotating the lego in real time.
+   pad2->cd();
+   hpx->DrawCopy("lego1");
+   TPaveLabel *label2 = new TPaveLabel(-0.72,0.74,-0.22,0.88,"option Lego1");
+   label2->Draw();
+   TPaveLabel *label2a = new TPaveLabel(-0.93,-1.08,0.25,-0.92,
+      "Click on lego to rotate");
+   label2a->Draw();
+
+   // Draw hpx with its errors and a marker.
+   pad3->cd();
+   pad3->SetGridx();
+   pad3->SetGridy();
+   hpx->SetMarkerStyle(21);
+   hpx->Draw("e1p");
+   TPaveLabel *label3 = new TPaveLabel(2,600,3.5,650,"option e1p");
+   label3->Draw();
+
+   // The following illustrates how to add comments using a PaveText.
+   // Attributes of text/lines/boxes added to a PaveText can be modified.
+   // The AddText function returns a pointer to the added object.
+   TPaveText *pave = new TPaveText(-3.78,500,-1.2,750);
+   TText *t1=pave->AddText("You can move");
+   t1->SetTextColor(4);
+   t1->SetTextSize(0.05);
+   pave->AddText("Title and Stats pads");
+   pave->AddText("X and Y axis");
+   pave->AddText("You can modify bin contents");
+   pave->Draw();
+   c1->Update();
+}
+// \file
+/// \ingroup tutorial_hist
+/// \notebook -js
+/// This example demonstrates how to display a histogram and its two projections.
+/// A TExec allows to redraw automatically the projections when a zoom is performed
+/// on the 2D histogram.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+TH2F *h2;
+TH1D * projh2X;
+TH1D * projh2Y;
+TPad *right_pad, *top_pad;
+
+void h2proj()
+{
+   auto c1 = new TCanvas("c1", "c1",900,900);
+   gStyle->SetOptStat(0);
+
+   TPad *center_pad = new TPad("center_pad", "center_pad",0.0,0.0,0.6,0.6);
+   center_pad->Draw();
+
+   right_pad = new TPad("right_pad", "right_pad",0.55,0.0,1.0,0.6);
+   right_pad->Draw();
+
+   top_pad = new TPad("top_pad", "top_pad",0.0,0.55,0.6,1.0);
+   top_pad->Draw();
+
+   h2 = new TH2F("h2","",40,-4,4,40,-20,20);
+   Float_t px, py;
+   for (Int_t i = 0; i < 25000; i++) {
+      gRandom->Rannor(px,py);
+      h2->Fill(px,5*py);
+   }
+   projh2X = h2->ProjectionX();
+   projh2Y = h2->ProjectionY();
+
+   center_pad->cd();
+   gStyle->SetPalette(1);
+   h2->Draw("COL");
+
+   top_pad->cd();
+   projh2X->SetFillColor(kBlue+1);
+   projh2X->Draw("bar");
+
+   right_pad->cd();
+   projh2Y->SetFillColor(kBlue-2);
+   projh2Y->Draw("hbar");
+
+   c1->cd();
+   TLatex *t = new TLatex();
+   t->SetTextFont(42);
+   t->SetTextSize(0.02);
+   t->DrawLatex(0.6,0.88,"This example demonstrates how to display");
+   t->DrawLatex(0.6,0.85,"a histogram and its two projections.");
+
+   auto ex = new TExec("zoom","ZoomExec()");
+   h2->GetListOfFunctions()->Add(ex);
+}
+
+void ZoomExec()
+{
+   int xfirst = h2->GetXaxis()->GetFirst();
+   int xlast = h2->GetXaxis()->GetLast();
+   double xmin = h2->GetXaxis()->GetBinLowEdge(xfirst);
+   double xmax = h2->GetXaxis()->GetBinUpEdge(xlast);
+   projh2X->GetXaxis()->SetRangeUser(xmin, xmax);
+   top_pad->Modified();
+
+   int yfirst = h2->GetYaxis()->GetFirst();
+   int ylast = h2->GetYaxis()->GetLast();
+   double ymin = h2->GetYaxis()->GetBinLowEdge(yfirst);
+   double ymax = h2->GetYaxis()->GetBinUpEdge(ylast);
+   projh2Y->GetXaxis()->SetRangeUser(ymin, ymax);
+   right_pad->Modified();
+}/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example of bar charts with 1-d histograms.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+TCanvas *hbars() {
+     // Try to open first the file cernstaff.root in tutorials/tree directory
+   TString filedir = gROOT->GetTutorialDir();
+   filedir += TString("/tree/");
+   TString filename = "cernstaff.root";
+   bool fileNotFound = gSystem->AccessPathName(filename); // note opposite return code
+
+   // If file is not found try to generate it uing the macro tree/cernbuild.C
+   if (fileNotFound) {
+      TString macroName = filedir + "cernbuild.C";
+      if (!gInterpreter->IsLoaded(macroName)) gInterpreter->LoadMacro(macroName);
+      gROOT->ProcessLineFast("cernbuild()");
+   }
+   TFile * f = TFile::Open(filename);
+   if (!f) {
+      Error("hbars","file cernstaff.root not found");
+      return 0;
+   }
+   TTree *T = (TTree*)f->Get("T");
+   if (!T) {
+      Error("hbars","Tree T is not present in file %s",f->GetName() );
+      return 0;
+   }
+   T->SetFillColor(45);
+   TCanvas *c1 = new TCanvas("c1","histograms with bars",700,800);
+   c1->SetFillColor(42);
+   c1->Divide(1,2);
+
+   // Horizontal bar chart
+   c1->cd(1); gPad->SetGrid(); gPad->SetLogx(); gPad->SetFrameFillColor(33);
+   T->Draw("Nation","","hbar2");
+
+   // Vertical bar chart
+   c1->cd(2); gPad->SetGrid(); gPad->SetFrameFillColor(33);
+   T->Draw("Division>>hDiv","","goff");
+   TH1F *hDiv   = (TH1F*)gDirectory->Get("hDiv");
+   hDiv->SetStats(0);
+   TH1F *hDivFR = (TH1F*)hDiv->Clone("hDivFR");
+   T->Draw("Division>>hDivFR","Nation==\"FR\"","goff");
+   hDiv->SetBarWidth(0.45);
+   hDiv->SetBarOffset(0.1);
+   hDiv->SetFillColor(49);
+   TH1 *h1 = hDiv->DrawCopy("bar2");
+   hDivFR->SetBarWidth(0.4);
+   hDivFR->SetBarOffset(0.55);
+   hDivFR->SetFillColor(50);
+   TH1 *h2 = hDivFR->DrawCopy("bar2,same");
+
+   TLegend *legend = new TLegend(0.55,0.65,0.76,0.82);
+   legend->AddEntry(h1,"All nations","f");
+   legend->AddEntry(h2,"French only","f");
+   legend->Draw();
+
+   c1->cd();
+   delete f;
+   return c1;
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Palette coloring for histogram is activated thanks to the options `PFC`
+/// (Palette Fill Color), `PLC` (Palette Line Color) and `AMC` (Palette Marker Color).
+/// When one of these options is given to `TH1::Draw` the histogram get its color
+/// from the current color palette defined by `gStyle->SetPalette(...)`. The color
+/// is determined according to the number of objects having palette coloring in
+/// the current pad.
+///
+/// In this example five histograms are displayed with palette coloring for lines and
+/// and marker. The histograms are drawn with makers and error bars and one can see
+/// the color of each histogram is picked inside the default palette `kBird`.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+void histpalettecolor()
+{
+   auto C = new TCanvas();
+
+   gStyle->SetOptTitle(kFALSE);
+   gStyle->SetOptStat(0);
+
+   auto h1 = new TH1F ("h1","Histogram drawn with full circles",100,-4,4);
+   auto h2 = new TH1F ("h2","Histogram drawn with full squares",100,-4,4);
+   auto h3 = new TH1F ("h3","Histogram drawn with full triangles up",100,-4,4);
+   auto h4 = new TH1F ("h4","Histogram drawn with full triangles down",100,-4,4);
+   auto h5 = new TH1F ("h5","Histogram drawn with empty circles",100,-4,4);
+
+   TRandom3 rng;
+   Double_t px,py;
+   for (Int_t i = 0; i < 25000; i++) {
+      rng.Rannor(px,py);
+      h1->Fill(px,10.);
+      h2->Fill(px, 8.);
+      h3->Fill(px, 6.);
+      h4->Fill(px, 4.);
+      h5->Fill(px, 2.);
+   }
+
+   h1->SetMarkerStyle(kFullCircle);
+   h2->SetMarkerStyle(kFullSquare);
+   h3->SetMarkerStyle(kFullTriangleUp);
+   h4->SetMarkerStyle(kFullTriangleDown);
+   h5->SetMarkerStyle(kOpenCircle);
+
+   h1->Draw("PLC PMC");
+   h2->Draw("SAME PLC PMC");
+   h3->Draw("SAME PLC PMC");
+   h4->Draw("SAME PLC PMC");
+   h5->Draw("SAME PLC PMC");
+
+   gPad->BuildLegend();
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Illustrates the advantages of a TH1K histogram
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Victor Perevovchikov
+
+void padRefresh(TPad *pad,int flag=0)
+{
+   if (!pad) return;
+   pad->Modified();
+   pad->Update();
+   TList *tl = pad->GetListOfPrimitives();
+   if (!tl) return;
+   TListIter next(tl);
+   TObject *to;
+   while ((to=next())) {
+     if (to->InheritsFrom(TPad::Class())) padRefresh((TPad*)to,1);}
+   if (flag) return;
+   gSystem->ProcessEvents();
+}
+
+void hksimple()
+{
+// Create a new canvas.
+   TCanvas* c1 = new TCanvas("c1","Dynamic Filling Example",200,10,600,900);
+
+// Create a normal histogram and two TH1K histograms
+   TH1 *hpx[3];
+   hpx[0]    = new TH1F("hp0","Normal histogram",1000,-4,4);
+   hpx[1]    = new TH1K("hk1","Nearest Neighbour of order 3",1000,-4,4);
+   hpx[2]    = new TH1K("hk2","Nearest Neighbour of order 16",1000,-4,4,16);
+   c1->Divide(1,3);
+   Int_t j;
+   for (j=0;j<3;j++) {
+      c1->cd(j+1);
+      hpx[j]->SetFillColor(48);
+      hpx[j]->Draw();
+   }
+
+// Fill histograms randomly
+   gRandom->SetSeed(12345);
+   Float_t px, py, pz;
+   const Int_t kUPDATE = 10;
+   for (Int_t i = 0; i <= 300; i++) {
+      gRandom->Rannor(px,py);
+      for (j=0;j<3;j++) {hpx[j]->Fill(px);}
+      if (i && (i%kUPDATE) == 0) {
+            padRefresh(c1);
+      }
+   }
+
+   for (j=0;j<3;j++) hpx[j]->Fit("gaus");
+   padRefresh(c1);
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// 1-D histograms with alphanumeric labels
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+TCanvas *hlabels1()
+{
+   const Int_t nx = 20;
+   const char *people[nx] = {"Jean","Pierre","Marie","Odile","Sebastien",
+      "Fons","Rene","Nicolas","Xavier","Greg","Bjarne","Anton","Otto",
+      "Eddy","Peter","Pasha","Philippe","Suzanne","Jeff","Valery"};
+   TCanvas *c1 = new TCanvas("c1","demo bin labels",10,10,900,500);
+   c1->SetGrid();
+   c1->SetTopMargin(0.15);
+   TH1F *h = new TH1F("h","test",3,0,3);
+   h->SetStats(0);
+   h->SetFillColor(38);
+   h->SetCanExtend(TH1::kAllAxes);
+   for (Int_t i=0;i<5000;i++) {
+      Int_t r = gRandom->Rndm()*20;
+      h->Fill(people[r],1);
+   }
+   h->LabelsDeflate();
+   h->Draw();
+   TPaveText *pt = new TPaveText(0.7,0.85,0.98,0.98,"brNDC");
+   pt->SetFillColor(18);
+   pt->SetTextAlign(12);
+   pt->AddText("Use the axis Context Menu LabelsOption");
+   pt->AddText(" \"a\"   to sort by alphabetic order");
+   pt->AddText(" \">\"   to sort by decreasing values");
+   pt->AddText(" \"<\"   to sort by increasing values");
+   pt->Draw();
+   return c1;
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// 2-D histograms with alphanumeric labels.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+TCanvas *hlabels2()
+{
+   const Int_t nx = 12;
+   const Int_t ny = 20;
+   const char *month[nx]  = {"January","February","March","April","May",
+      "June","July","August","September","October","November",
+      "December"};
+   const char *people[ny] = {"Jean","Pierre","Marie","Odile","Sebastien",
+      "Fons","Rene","Nicolas","Xavier","Greg","Bjarne","Anton",
+      "Otto","Eddy","Peter","Pasha","Philippe","Suzanne","Jeff",
+      "Valery"};
+   TCanvas *c1 = new TCanvas("c1","demo bin labels",10,10,600,600);
+   c1->SetGrid();
+   c1->SetLeftMargin(0.15);
+   c1->SetBottomMargin(0.15);
+   TH2F *h = new TH2F("h","test",3,0,3,2,0,2);
+   h->SetCanExtend(TH1::kAllAxes);
+   h->SetStats(0);
+   gRandom->SetSeed();
+   for (Int_t i=0;i<15000;i++) {
+      Int_t rx = gRandom->Rndm()*nx;
+      Int_t ry = gRandom->Rndm()*ny;
+      h->Fill(people[ry],month[rx],1);
+   }
+   h->LabelsDeflate("X");
+   h->LabelsDeflate("Y");
+   h->LabelsOption("v");
+   h->Draw("text");
+
+   TPaveText *pt = new TPaveText(0.6,0.85,0.98,0.98,"brNDC");
+   pt->SetFillColor(18);
+   pt->SetTextAlign(12);
+   pt->AddText("Use the axis Context Menu LabelsOption");
+   pt->AddText(" \"a\"   to sort by alphabetic order");
+   pt->AddText(" \">\"   to sort by decreasing values");
+   pt->AddText(" \"<\"   to sort by increasing values");
+   pt->Draw();
+   return c1;
+}
+/// \file
+/// \ingroup tutorial_hist
+///
+/// This tutorial demonstrates how the highlight mechanism can be used on an histogram.
+/// A 2D histogram is booked an filled with a random gaussian distribution.
+/// Then an highlight method is connected to the histogram. Moving the mouse
+/// on the histogram will update the histogram title in real time according to
+/// the highlighted bin.
+///
+/// \macro_code
+///
+/// \date March 2018
+/// \author Jan Musinsky
+
+void HighlightTitle(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb);
+
+TText *info;
+
+
+void hlHisto1()
+{
+   auto Canvas = new TCanvas();
+   auto h2 = new TH2F("h2", "", 50, -5.0, 5.0, 50, -5.0, 5.0);
+   for (Int_t i = 0; i < 10000; i++) h2->Fill(gRandom->Gaus(), gRandom->Gaus());
+   h2->Draw();
+
+   info = new TText(0.0, -4.0, "please move the mouse over the frame");
+   info->SetTextAlign(22);
+   info->SetTextColor(kRed+1);
+   info->SetBit(kCannotPick);
+   info->Draw();
+   Canvas->Update();
+
+   h2->SetHighlight();
+   Canvas->HighlightConnect("HighlightTitle(TVirtualPad*,TObject*,Int_t,Int_t)");
+}
+
+
+void HighlightTitle(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
+{
+   auto h2 = (TH2F *)obj;
+   if (!h2) return;
+   if (!h2->IsHighlight()) { // after highlight disabled
+      h2->SetTitle("");
+      return;
+   }
+   info->SetTitle("");
+   TString t;
+   t.Form("bin[%02d, %02d] (%5.2f, %5.2f) content %g", xhb, yhb,
+          h2->GetXaxis()->GetBinCenter(xhb), h2->GetYaxis()->GetBinCenter(yhb),
+          h2->GetBinContent(xhb, yhb));
+   h2->SetTitle(t.Data());
+   pad->Update();
+}
+/// \file
+/// \ingroup tutorial_hist
+///
+/// This tutorial demonstrates how the highlight mechanism can be used on an histogram.
+/// A 2D histogram is booked an filled with a random gaussian distribution and
+/// drawn with the "col" option.
+/// Then an highlight method is connected to the histogram. Moving the mouse
+/// on the histogram open a new canvas displaying the two X and Y projections
+/// at the highlighted bin.
+///
+/// \macro_code
+///
+/// \date March 2018
+/// \author Jan Musinsky
+
+void Highlight2(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb);
+
+TText *info;
+
+
+void hlHisto2()
+{
+   auto Canvas = new TCanvas("Canvas", "Canvas", 0, 0, 500, 500);
+   auto h2 = new TH2F("h2", "", 50, -5.0, 5.0, 50, -5.0, 5.0);
+   for (Int_t i = 0; i < 10000; i++) h2->Fill(gRandom->Gaus(), gRandom->Gaus());
+   h2->Draw("col");
+
+   info = new TText(0.0, -4.0, "please move the mouse over the frame");
+   info->SetTextAlign(22);
+   info->SetTextSize(0.04);
+   info->SetTextColor(kRed+1);
+   info->SetBit(kCannotPick);
+   info->Draw();
+   Canvas->Update();
+
+   h2->SetHighlight();
+   Canvas->HighlightConnect("Highlight2(TVirtualPad*,TObject*,Int_t,Int_t)");
+}
+
+
+void Highlight2(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
+{
+   auto h2 = (TH2F *)obj;
+   if(!h2) return;
+   auto CanvasProj = (TCanvas *) gROOT->GetListOfCanvases()->FindObject("CanvasProj");
+   if (!h2->IsHighlight()) { // after highlight disabled
+      if (CanvasProj) delete CanvasProj;
+      return;
+   }
+
+   info->SetTitle("");
+
+   auto px = h2->ProjectionX("_px", yhb, yhb);
+   auto py = h2->ProjectionY("_py", xhb, xhb);
+   px->SetTitle(TString::Format("ProjectionX of biny[%02d]", yhb));
+   py->SetTitle(TString::Format("ProjectionY of binx[%02d]", xhb));
+
+   if (!CanvasProj) {
+      CanvasProj = new TCanvas("CanvasProj", "CanvasProj", 505, 0, 600, 600);
+      CanvasProj->Divide(1, 2);
+      CanvasProj->cd(1);
+      px->Draw();
+      CanvasProj->cd(2);
+      py->Draw();
+   }
+
+   CanvasProj->GetPad(1)->Modified();
+   CanvasProj->GetPad(2)->Modified();
+   CanvasProj->Update();
+}
+/// \file
+/// \ingroup tutorial_hist
+///
+/// This tutorial demonstrates how the highlight mechanism can be used on a ntuple.
+/// The ntuple in `hsimple.root` is drawn with three differents selection. Moving
+/// the mouse ove the two 1D representation display the on 2D plot the events
+/// contributing to the highlighted bin.
+///
+/// \macro_code
+///
+/// \date March 2018
+/// \author Jan Musinsky
+
+TList *list1 = 0;
+TList *list2 = 0;
+
+void InitGraphs(TNtuple *nt, TH1F *histo);
+void Highlight3(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb);
+
+
+void hlHisto3()
+{
+   auto dir = gROOT->GetTutorialDir();
+   dir.Append("/hsimple.C");
+   dir.ReplaceAll("/./","/");
+   if (!gInterpreter->IsLoaded(dir.Data())) gInterpreter->LoadMacro(dir.Data());
+   auto file = (TFile*)gROOT->ProcessLineFast("hsimple(1)");
+   if (!file) return;
+
+   TNtuple *ntuple;
+   file->GetObject("ntuple", ntuple);
+   if (!ntuple) return;
+   const char *cut = "pz > 3.0";
+
+   TCanvas *Canvas1 = new TCanvas("Canvas1", "Canvas1", 0, 0, 700, 500);
+   Canvas1->Divide(1, 2);
+   TCanvas *Canvas2 = new TCanvas("Canvas2", "Canvas2", 705, 0, 500, 500);
+
+   // Case1, histo1, pz distribution
+   Canvas1->cd(1);
+   ntuple->Draw("pz>>histo1(100, 2.0, 12.0)", cut);
+   auto histo1 = (TH1F *)gPad->FindObject("histo1");
+   auto info1  = new TText(7.0, histo1->GetMaximum()*0.6,
+                            "please move the mouse over the frame");
+   info1->SetTextColor(histo1->GetLineColor());
+   info1->SetBit(kCannotPick);
+   info1->Draw();
+
+   // Case2, histo2, px*py*pz distribution
+   Canvas1->cd(2);
+   ntuple->Draw("(px*py*pz)>>histo2(100, -50.0, 50.0)", cut);
+   auto histo2 = (TH1F *)gPad->FindObject("histo2");
+   histo2->SetLineColor(kGreen+2);
+   auto info2 = new TText(10.0, histo2->GetMaximum()*0.6, info1->GetTitle());
+   info2->SetTextColor(histo2->GetLineColor());
+   info2->SetBit(kCannotPick);
+   info2->Draw();
+   Canvas1->Update();
+
+   histo1->SetHighlight();
+   histo2->SetHighlight();
+   Canvas1->HighlightConnect("Highlight3(TVirtualPad*,TObject*,Int_t,Int_t)");
+
+   // Common graph (all entries, all histo bins)
+   Canvas2->cd();
+   ntuple->Draw("px:py", cut);
+   auto gcommon = (TGraph *)gPad->FindObject("Graph");
+   gcommon->SetBit(kCanDelete, kFALSE); // will be redraw
+   auto htemp = (TH2F *)gPad->FindObject("htemp");
+   gcommon->SetTitle(htemp->GetTitle());
+   gcommon->GetXaxis()->SetTitle(htemp->GetXaxis()->GetTitle());
+   gcommon->GetYaxis()->SetTitle(htemp->GetYaxis()->GetTitle());
+   gcommon->Draw("AP");
+
+   // Must be last
+   ntuple->Draw("px:py:pz", cut, "goff");
+   histo1->SetUniqueID(1); // mark as case1
+   histo2->SetUniqueID(2); // mark as case2
+   InitGraphs(ntuple, histo1);
+   InitGraphs(ntuple, histo2);
+}
+
+
+void InitGraphs(TNtuple *nt, TH1F *histo)
+{
+   Long64_t nev = nt->GetSelectedRows();
+   Double_t *px = nt->GetV1();
+   Double_t *py = nt->GetV2();
+   Double_t *pz = nt->GetV3();
+
+   auto list = new TList();
+   if      (histo->GetUniqueID() == 1) list1 = list;
+   else if (histo->GetUniqueID() == 2) list2 = list;
+   else  return;
+
+   Int_t nbins = histo->GetNbinsX();
+   Int_t bin;
+   TGraph *g;
+   for (bin = 0; bin < nbins; bin++) {
+      g = new TGraph();
+      g->SetName(TString::Format("g%sbin_%d", histo->GetName(), bin+1));
+      g->SetBit(kCannotPick);
+      g->SetMarkerStyle(25);
+      g->SetMarkerColor(histo->GetLineColor());
+      list->Add(g);
+   }
+
+   Double_t value = 0.0;
+   for (Long64_t ie = 0; ie < nev; ie++) {
+      if (histo->GetUniqueID() == 1) value = pz[ie];
+      if (histo->GetUniqueID() == 2) value = px[ie]*py[ie]*pz[ie];
+      bin = histo->FindBin(value) - 1;
+      g = (TGraph *)list->At(bin);
+      if (!g) continue; // under/overflow
+      g->SetPoint(g->GetN(), py[ie], px[ie]); // reverse as px:py
+   }
+}
+
+
+void Highlight3(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
+{
+   auto histo = (TH1F *)obj;
+   if(!histo) return;
+
+   TCanvas *Canvas2 = (TCanvas *)gROOT->GetListOfCanvases()->FindObject("Canvas2");
+   if (!Canvas2) return;
+   TGraph *gcommon = (TGraph *)Canvas2->FindObject("Graph");
+   if (!gcommon) return;
+
+   TList *list = 0;
+   if      (histo->GetUniqueID() == 1) list = list1; // case1
+   else if (histo->GetUniqueID() == 2) list = list2; // case2
+   if (!list) return;
+   TGraph *g = (TGraph *)list->At(xhb);
+   if (!g) return;
+
+   TVirtualPad *savepad = gPad;
+   Canvas2->cd();
+   gcommon->Draw("AP");
+   //gcommon->SetTitle(TString::Format("%d / %d", g->GetN(), gcommon->GetN()));
+   if (histo->IsHighlight()) // don't draw g after highlight disabled
+      if (g->GetN() > 0) g->Draw("P");
+   Canvas2->Update();
+   savepad->cd();
+}
+/// \file
+/// \ingroup tutorial_hist
+///
+/// This tutorial demonstrates how the highlight mechanism can be used on an histogram.
+/// A 1D histogram is created.
+/// Then an highlight method is connected to the histogram. Moving the mouse
+/// on the histogram will open a new canvas showing in real time a zoom around
+/// the highlighted bin.
+///
+/// \macro_code
+///
+/// \date March 2018
+/// \author Jan Musinsky
+
+void HighlightZoom(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb);
+
+TText *info;
+
+
+void hlHisto4()
+{
+   auto Canvas1 = new TCanvas("Canvas1", "", 0, 0, 600, 400);
+   auto f1 = new TF1("f1", "x*gaus(0) + [3]*abs(sin(x)/x)", -50.0, 50.0);
+   f1->SetParameters(20.0, 4.0, 1.0, 20.0);
+   auto h1 = new TH1F("h1", "Test random numbers", 200, -50.0, 50.0);
+   h1->FillRandom("f1", 100000);
+   h1->Draw();
+   h1->Fit(f1, "Q");
+   gStyle->SetGridColor(kGray);
+   Canvas1->SetGrid();
+
+   info = new TText(0.0, h1->GetMaximum()*0.7, "please move the mouse over the frame");
+   info->SetTextSize(0.04);
+   info->SetTextAlign(22);
+   info->SetTextColor(kRed-1);
+   info->SetBit(kCannotPick);
+   info->Draw();
+   Canvas1->Update();
+
+   h1->SetHighlight();
+   Canvas1->HighlightConnect("HighlightZoom(TVirtualPad*,TObject*,Int_t,Int_t)");
+}
+
+
+void HighlightZoom(TVirtualPad *pad, TObject *obj, Int_t xhb, Int_t yhb)
+{
+   auto h = (TH1F *)obj;
+   if(!h) return;
+
+   auto Canvas2 = (TCanvas *)gROOT->GetListOfCanvases()->FindObject("Canvas2");
+   static TH1 *hz = 0;
+   if (!h->IsHighlight()) { // after highlight disabled
+      if (Canvas2) delete Canvas2;
+      if (hz) { delete hz; hz = 0; }
+      return;
+   }
+
+   info->SetTitle("");
+
+   if (!Canvas2) {
+      Canvas2 = new TCanvas("Canvas2", "Canvas2", 605, 0, 400, 400);
+      Canvas2->SetGrid();
+      if (hz) hz->Draw(); // after reopen this canvas
+   }
+   if (!hz) {
+      hz = (TH1 *)h->Clone("hz");
+      hz->SetTitle(TString::Format("%s (zoomed)", hz->GetTitle()));
+      hz->SetStats(kFALSE);
+      hz->Draw();
+      Canvas2->Update();
+      hz->SetHighlight(kFALSE);
+   }
+
+   Int_t zf = hz->GetNbinsX()*0.05; // zoom factor
+   hz->GetXaxis()->SetRange(xhb-zf, xhb+zf);
+
+   Canvas2->Modified();
+   Canvas2->Update();
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example of stacked histograms: class THStack.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+TCanvas *hstack() {
+   THStack *hs = new THStack("hs","Stacked 1D histograms");
+   //create three 1-d histograms
+   TH1F *h1st = new TH1F("h1st","test hstack",100,-4,4);
+   h1st->FillRandom("gaus",20000);
+   h1st->SetFillColor(kRed);
+   h1st->SetMarkerStyle(21);
+   h1st->SetMarkerColor(kRed);
+   hs->Add(h1st);
+   TH1F *h2st = new TH1F("h2st","test hstack",100,-4,4);
+   h2st->FillRandom("gaus",15000);
+   h2st->SetFillColor(kBlue);
+   h2st->SetMarkerStyle(21);
+   h2st->SetMarkerColor(kBlue);
+   hs->Add(h2st);
+   TH1F *h3st = new TH1F("h3st","test hstack",100,-4,4);
+   h3st->FillRandom("gaus",10000);
+   h3st->SetFillColor(kGreen);
+   h3st->SetMarkerStyle(21);
+   h3st->SetMarkerColor(kGreen);
+   hs->Add(h3st);
+
+   TCanvas *cst = new TCanvas("cst","stacked hists",10,10,700,700);
+   cst->Divide(2,2);
+   // in top left pad, draw the stack with defaults
+   cst->cd(1);
+   hs->Draw();
+   // in top right pad, draw the stack in non-stack mode
+   // and errors option
+   cst->cd(2);
+   gPad->SetGrid();
+   hs->Draw("nostack,e1p");
+   //in bottom left, draw in stack mode with "lego1" option
+   cst->cd(3);
+   gPad->SetFrameFillColor(17);
+   gPad->SetTheta(3.77);
+   gPad->SetPhi(2.9);
+   hs->Draw("lego1");
+
+   cst->cd(4);
+   //create two 2-D histograms and draw them in stack mode
+   gPad->SetFrameFillColor(17);
+   THStack *a = new THStack("a","Stacked 2D histograms");
+   TF2 *f1 = new TF2("f1",
+      "xygaus + xygaus(5) + xylandau(10)",-4,4,-4,4);
+   Double_t params1[] = {130,-1.4,1.8,1.5,1, 150,2,0.5,-2,0.5,
+      3600,-2,0.7,-3,0.3};
+   f1->SetParameters(params1);
+   TH2F *h2sta = new TH2F("h2sta","h2sta",20,-4,4,20,-4,4);
+   h2sta->SetFillColor(38);
+   h2sta->FillRandom("f1",4000);
+   TF2 *f2 = new TF2("f2","xygaus + xygaus(5)",-4,4,-4,4);
+   Double_t params2[] = {100,-1.4,1.9,1.1,2, 80,2,0.7,-2,0.5};
+   f2->SetParameters(params2);
+   TH2F *h2stb = new TH2F("h2stb","h2stb",20,-4,4,20,-4,4);
+   h2stb->SetFillColor(46);
+   h2stb->FillRandom("f2",3000);
+   a->Add(h2sta);
+   a->Add(h2stb);
+   a->Draw();
+   return cst;
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook -js
+/// Histograms filled and drawn in a loop.
+/// Simple example illustrating how to use the C++ interpreter
+/// to fill histograms in a loop and show the graphics results
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+void hsum() {
+   TCanvas *c1 = new TCanvas("c1","The HSUM example",200,10,600,400);
+   c1->SetGrid();
+
+   gBenchmark->Start("hsum");
+
+   // Create some histograms.
+   auto total  = new TH1F("total","This is the total distribution",100,-4,4);
+   auto main   = new TH1F("main","Main contributor",100,-4,4);
+   auto s1     = new TH1F("s1","This is the first signal",100,-4,4);
+   auto s2     = new TH1F("s2","This is the second signal",100,-4,4);
+   total->Sumw2();  // store the sum of squares of weights
+   total->SetMarkerStyle(21);
+   total->SetMarkerSize(0.7);
+   main->SetFillColor(16);
+   s1->SetFillColor(42);
+   s2->SetFillColor(46);
+   TSlider *slider = 0;
+
+   // Fill histograms randomly
+   gRandom->SetSeed();
+   const Int_t kUPDATE = 500;
+   Float_t xs1, xs2, xmain;
+   for ( Int_t i=0; i<10000; i++) {
+      xmain = gRandom->Gaus(-1,1.5);
+      xs1   = gRandom->Gaus(-0.5,0.5);
+      xs2   = gRandom->Landau(1,0.15);
+      main->Fill(xmain);
+      s1->Fill(xs1,0.3);
+      s2->Fill(xs2,0.2);
+      total->Fill(xmain);
+      total->Fill(xs1,0.3);
+      total->Fill(xs2,0.2);
+      if (i && (i%kUPDATE) == 0) {
+         if (i == kUPDATE) {
+            total->Draw("e1p");
+            main->Draw("same");
+            s1->Draw("same");
+            s2->Draw("same");
+            c1->Update();
+            slider = new TSlider("slider",
+               "test",4.2,0,4.6,total->GetMaximum(),38);
+            slider->SetFillColor(46);
+         }
+         if (slider) slider->SetRange(0,Float_t(i)/10000.);
+         c1->Modified();
+         c1->Update();
+      }
+   }
+   slider->SetRange(0,1);
+   total->Draw("sameaxis"); // to redraw axis hidden by the fill area
+   c1->Modified();
+   gBenchmark->Show("hsum");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook -js
+/// Demo of Timers.
+///
+/// Simple example illustrating how to use the C++ interpreter
+/// to fill histograms in a loop and show the graphics results
+/// This program is a variant of the tutorial "hsum".
+/// It illustrates the use of Timers.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+Float_t progressRatio;
+TSlider *slider;
+TCanvas *c1;
+
+void hsumUpdate()
+{
+// called when Timer times out
+   if (slider) slider->SetRange(0, ::progressRatio);
+   c1->Modified();
+   c1->Update();
+}
+
+void hsumTimer(Int_t nfill=100000)
+{
+   c1 = new TCanvas("c1","The HSUM example",200,10,600,400);
+   c1->SetGrid();
+
+
+   // Create some histograms.
+   auto total  = new TH1F("total","This is the total distribution",100,-4,4);
+   auto main   = new TH1F("main","Main contributor",100,-4,4);
+   auto s1     = new TH1F("s1","This is the first signal",100,-4,4);
+   auto s2     = new TH1F("s2","This is the second signal",100,-4,4);
+   total->Sumw2();   // store the sum of squares of weights
+   total->SetMarkerStyle(21);
+   total->SetMarkerSize(0.7);
+   main->SetFillColor(16);
+   s1->SetFillColor(42);
+   s2->SetFillColor(46);
+   total->SetMaximum(nfill/20.);
+   total->Draw("e1p");
+   main->Draw("same");
+   s1->Draw("same");
+   s2->Draw("same");
+   c1->Update();slider = new TSlider("slider",
+      "test",4.2,0,4.6,0.8*total->GetMaximum(),38);
+   slider->SetFillColor(46);
+
+   // Create a TTimer (hsumUpdate called every 300 msec)
+   TTimer timer("hsumUpdate()",300);
+   timer.TurnOn();
+
+   // Fill histograms randomly
+   Float_t xs1, xs2, xmain;
+   gRandom->SetSeed();
+   for (Int_t i=0; i<nfill; i++) {
+      ::progressRatio = Float_t(i)/Float_t(nfill);
+      if (gSystem->ProcessEvents()) break;
+      xmain = gRandom->Gaus(-1,1.5);
+      xs1   = gRandom->Gaus(-0.5,0.5);
+      xs2   = gRandom->Landau(1,0.15);
+      main->Fill(xmain);
+      s1->Fill(xs1,0.3);
+      s2->Fill(xs2,0.2);
+      total->Fill(xmain);
+      total->Fill(xs1,0.3);
+      total->Fill(xs2,0.2);
+   }
+   timer.TurnOff();
+   hsumUpdate();
+}
+
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// The legend can be placed automatically in the current pad in an empty space
+/// found at painting time.
+///
+/// The following example illustrate this facility. Only the width and height of the
+/// legend is specified in percentage of the pad size.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+void legendautoplaced()
+{
+   auto c4 = new TCanvas("c", "c", 600,500);
+   auto hpx = new TH1D("hpx","This is the hpx distribution",100,-4.,4.);
+   hpx->FillRandom("gaus", 50000);
+   hpx->Draw("E");
+   hpx->GetYaxis()->SetTitle("Y Axis title");
+   hpx->GetYaxis()->SetTitleOffset(1.3); hpx->GetYaxis()->CenterTitle(true);
+   hpx->GetXaxis()->SetTitle("X Axis title");
+   hpx->GetXaxis()->CenterTitle(true);
+
+   auto h1 = new TH1D("h1","A green histogram",100,-2.,2.);
+   h1->FillRandom("gaus", 10000);
+   h1->SetLineColor(kGreen);
+   h1->Draw("same");
+
+   auto g = new TGraph();
+   g->SetPoint(0, -3.5, 100 );
+   g->SetPoint(1, -3.0, 300 );
+   g->SetPoint(2, -2.0, 1000 );
+   g->SetPoint(3,  1.0, 800 );
+   g->SetPoint(4,  0.0, 200 );
+   g->SetPoint(5,  3.0, 200 );
+   g->SetPoint(6,  3.0, 700 );
+   g->Draw("L");
+   g->SetTitle("This is a TGraph");
+   g->SetLineColor(kRed);
+   g->SetFillColor(0);
+
+   // TPad::BuildLegend() default placement values are such that they trigger
+   // the automatic placement.
+   c4->BuildLegend();
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Draw parametric functions with log scales.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+void logscales() {
+   TCanvas *c1 = new TCanvas("c1", "Various options on LOG scales plots",0,0,700,900);
+   c1->SetFillColor(30);
+
+   TPad *pad1 = new TPad("pad1","pad1",0.03,0.62,0.50,0.92,32);
+   TPad *pad2 = new TPad("pad2","pad2",0.51,0.62,0.98,0.92,33);
+   TPad *pad3 = new TPad("pad3","pad3",0.03,0.02,0.97,0.535,38);
+   pad1->Draw(); pad2->Draw(); pad3->Draw();
+
+   TPaveLabel *title = new TPaveLabel(0.1,0.94,0.9,0.98, "Various options on LOG scales plots");
+   title->SetFillColor(16);
+   title->SetTextFont(42);
+   title->Draw();
+
+   TPaveText *pave = new TPaveText(0.1,0.55,0.9,0.61);
+   pave->SetFillColor(42);
+   pave->SetTextAlign(12);
+   pave->SetTextFont(42);
+   pave->AddText("When more Log labels are requested, the overlapping labels are removed");
+   pave->Draw();
+
+   pad1->cd();
+   pad1->SetLogy();
+   pad1->SetGridy();
+   TF1 *f1 = new TF1("f1","x*sin(x)*exp(-0.1*x)+15",-10.,10.);
+   TF1 *f2 = new TF1("f2","(sin(x)+cos(x))**5+15",-10.,10.);
+   TF1 *f3 = new TF1("f3","(sin(x)/(x)-x*cos(x))+15",-10.,10.);
+   f1->SetLineWidth(1); f1->SetLineColor(2);
+   f2->SetLineWidth(1); f2->SetLineColor(3);
+   f3->SetLineWidth(1); f3->SetLineColor(4);
+   f1->Draw();
+   f2->Draw("same");
+   f3->Draw("same");
+   f1->GetYaxis()->SetMoreLogLabels();
+   TPaveText *pave1 = new TPaveText(-6,2,6,6);
+   pave1->SetFillColor(42);
+   pave1->SetTextAlign(12);
+   pave1->SetTextFont(42);
+   pave1->AddText("Log scale along Y axis.");
+   pave1->AddText("More Log labels requested.");
+   pave1->Draw();
+
+   pad2->cd();
+   double x[10] = { 200, 300, 400, 500, 600, 650, 700, 710, 900,1000 };
+   double y[10] = { 200, 1000, 900, 400, 500, 250, 800, 150, 201, 220 };
+   TGraph *g_2 = new TGraph(10,x,y);
+   g_2->Draw("AL*");
+   g_2->SetMarkerColor(2);
+   g_2->GetYaxis()->SetMoreLogLabels();
+   g_2->GetYaxis()->SetNoExponent();
+   pad2->SetLogy();
+   g_2->GetXaxis()->SetMoreLogLabels();
+   pad2->SetLogx();
+   pad2->SetGridx();
+   TPaveText *pave2 = new TPaveText(150,80,500,180);
+   pave2->SetFillColor(42);
+   pave2->SetTextFont(42);
+   pave2->SetTextAlign(12);
+   pave2->AddText("Log scale along X and Y axis.");
+   pave2->AddText("More Log labels on both.");
+   pave2->AddText("No exponent along Y axis.");
+   pave2->Draw();
+
+   pad3->cd();
+   pad3->SetGridx();
+   pad3->SetGridy();
+   pad3->SetLogy();
+   pad3->SetLogx();
+   TF1 *f4 = new TF1("f4a","x*sin(x+10)+25",1,21);
+   f4->SetLineWidth(1);
+   f4->Draw();
+   f4->SetNpx(200);
+   f4->GetYaxis()->SetMoreLogLabels();
+   f4->GetXaxis()->SetMoreLogLabels();
+   f4 = new TF1("f4b","x*cos(x+10)*sin(x+10)+25",1,21);
+   f4->SetLineWidth(1); f4->Draw("same");
+   f4->SetNpx(200);
+   Int_t a = 20;
+   for (int i=a; i>=1; i--) {
+      f4 = new TF1(Form("f4b_%d",i),"x*sin(x+10)*[0]/[1]+25",1,21);
+      f4->SetParameter(0,i);
+      f4->SetParameter(1,a);
+      f4->SetNpx(200);
+      f4->SetLineWidth(1); f4->SetLineColor(i+10);
+      f4->Draw("same");
+      f4 = new TF1(Form("f4c_%d",i),"x*cos(x+10)*sin(x+10)*[0]/[1]+25",1,25);
+      f4->SetParameter(0,i);
+      f4->SetParameter(1,a);
+      f4->SetNpx(200);
+      f4->SetLineWidth(1); f4->SetLineColor(i+30); f4->Draw("same");
+   }
+   TPaveText *pave3 = new TPaveText(1.2,8,9,15);
+   pave3->SetFillColor(42);
+   pave3->AddText("Log scale along X and Y axis.");
+   pave3->SetTextFont(42);
+   pave3->SetTextAlign(12);
+   pave3->AddText("More Log labels on both.");
+   pave3->AddText("The labels have no exponents (they would be 0 or 1)");
+   pave3->Draw();
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Use a THStack to show a 2-D hist with cells with different colors.
+/// ~~~{.cpp}
+///  root > .x multicolor.C
+///  root > .x multicolor.C(1)
+/// ~~~
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+#include "TCanvas.h"
+#include "TH2.h"
+#include "THStack.h"
+#include "TRandom.h"
+
+void multicolor(Int_t isStack=0) {
+   TCanvas *c1 = new TCanvas;
+   Int_t nbins = 20;
+   TH2F *h1 = new TH2F("h1","h1",nbins,-4,4,nbins,-4,4);
+   h1->SetFillColor(kBlue);
+   TH2F *h2 = new TH2F("h2","h2",nbins,-4,4,nbins,-4,4);
+   h2->SetFillColor(kRed);
+   TH2F *h3 = new TH2F("h3","h3",nbins,-4,4,nbins,-4,4);
+   h3->SetFillColor(kYellow);
+   THStack *hs = new THStack("hs","three plots");
+   hs->Add(h1);
+   hs->Add(h2);
+   hs->Add(h3);
+   TRandom r;
+   Int_t i;
+   for (i=0;i<20000;i++) h1->Fill(r.Gaus(),r.Gaus());
+   for (i=0;i<200;i++) {
+      Int_t ix = (Int_t)r.Uniform(0,nbins);
+      Int_t iy = (Int_t)r.Uniform(0,nbins);
+      Int_t bin = h1->GetBin(ix,iy);
+      Double_t val = h1->GetBinContent(bin);
+      if (val <= 0) continue;
+      if (!isStack) h1->SetBinContent(bin,0);
+      if (r.Rndm() > 0.5) {
+         if (!isStack) h2->SetBinContent(bin,0);
+         h3->SetBinContent(bin,val);
+      } else {
+         if (!isStack) h3->SetBinContent(bin,0);
+         h2->SetBinContent(bin,val);
+      }
+   }
+   hs->Draw("lego1");
+}
+
+
+
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example creating a simple ratio plot of two histograms using the `pois` division option.
+/// Two histograms are set up and filled with random numbers. The constructor of `TRatioPlot`
+/// takes the to histograms, name and title for the object, drawing options for the histograms (`hist` and `E` in this case)
+/// and a drawing option for the output graph.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Paul Gessinger
+
+void ratioplot1() {
+   gStyle->SetOptStat(0);
+   auto c1 = new TCanvas("c1", "A ratio example");
+   auto h1 = new TH1D("h1", "h1", 50, 0, 10);
+   auto h2 = new TH1D("h2", "h2", 50, 0, 10);
+   auto f1 = new TF1("f1", "exp(- x/[0] )");
+   f1->SetParameter(0, 3);
+   h1->FillRandom("f1", 1900);
+   h2->FillRandom("f1", 2000);
+   h1->Sumw2();
+   h2->Scale(1.9 / 2.);
+   h1->GetXaxis()->SetTitle("x");
+   h1->GetYaxis()->SetTitle("y");
+   auto rp = new TRatioPlot(h1, h2);
+   c1->SetTicks(0, 1);
+   rp->Draw();
+   rp->GetLowYaxis()->SetNdivisions(505);
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example of a fit residual plot.
+///
+/// Creates a histogram filled with random numbers from a gaussian distribution
+/// and fits it with a standard gaussian function. The result is passed to the `TRatioPlot`
+/// constructor. Additionally, after calling `TRatioPlot::Draw` the upper and lower y axis
+/// titles are modified.
+/// Confidence interval bands are automatically drawn on the bottom (but can be disabled by draw option `nobands`.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Paul Gessinger
+
+void ratioplot2() {
+   gStyle->SetOptStat(0);
+   auto c1 = new TCanvas("c1", "fit residual simple");
+   auto h1 = new TH1D("h1", "h1", 50, -5, 5);
+   h1->FillRandom("gaus", 2000);
+   h1->Fit("gaus", "0");
+   h1->GetXaxis()->SetTitle("x");
+   auto rp1 = new TRatioPlot(h1);
+   rp1->Draw();
+   rp1->GetLowerRefYaxis()->SetTitle("ratio");
+   rp1->GetUpperRefYaxis()->SetTitle("entries");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example which shows how you can get the graph of the lower plot and set the y axis range for it.
+///
+/// Since the lower plot is not created until `TRatioPlot::Draw` is called, you can only use the method
+/// afterwards.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Paul Gessinger
+
+void ratioplot3()  {
+    gStyle->SetOptStat(0);
+    auto c1 = new TCanvas("c1", "fit residual simple");
+    c1->SetLogy();
+    auto h1 = new TH1D("h1", "h1", 50, -5, 5);
+    h1->FillRandom("gaus", 2000);
+    h1->Fit("gaus", "0");
+    h1->SetMinimum(0.001);
+    h1->GetXaxis()->SetTitle("x");
+    h1->GetYaxis()->SetTitle("y");
+    auto rp1 = new TRatioPlot(h1);
+    rp1->Draw();
+    rp1->GetLowerRefGraph()->SetMinimum(-2);
+    rp1->GetLowerRefGraph()->SetMaximum(2);
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example that shows custom dashed lines on the lower plot, specified by a vector of floats.
+///
+/// By default, dashed lines are drawn at certain points. You can either disable them, or specify
+/// where you want them to appear.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Paul Gessinger
+
+void ratioplot4()  {
+   gStyle->SetOptStat(0);
+   auto c1 = new TCanvas("c1", "fit residual simple");
+   auto h1 = new TH1D("h1", "h1", 50, -5, 5);
+   h1->FillRandom("gaus", 2000);
+   h1->Fit("gaus", "0");
+   h1->GetXaxis()->SetTitle("x");
+   h1->GetYaxis()->SetTitle("y");
+   auto rp1 = new TRatioPlot(h1);
+   std::vector<double> lines = {-3, -2, -1, 0, 1, 2, 3};
+   rp1->SetGridlines(lines);
+   rp1->Draw();
+   rp1->GetLowerRefGraph()->SetMinimum(-4);
+   rp1->GetLowerRefGraph()->SetMaximum(4);
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example that shows how you can set the colors of the confidence interval bands by using
+/// the method `TRatioPlot::SetConfidenceIntervalColors`.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Paul Gessinger
+
+void ratioplot5()  {
+   gStyle->SetOptStat(0);
+   auto c1 = new TCanvas("c1", "fit residual simple");
+   auto h1 = new TH1D("h1", "h1", 50, -5, 5);
+   h1->FillRandom("gaus", 2000);
+   h1->Fit("gaus","0");
+   h1->GetXaxis()->SetTitle("x");
+   h1->GetYaxis()->SetTitle("y");
+   auto rp1 = new TRatioPlot(h1);
+   rp1->SetConfidenceIntervalColors(kBlue, kRed);
+   rp1->Draw();
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example showing a fit residual plot, where the separation margin has been set to 0.
+/// The last label of the lower plot's y axis is hidden automatically.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Paul Gessinger
+
+void ratioplot6() {
+   gStyle->SetOptStat(0);
+   auto c1 = new TCanvas("c1", "fit residual simple");
+   gPad->SetFrameFillStyle(0);
+   auto h1 = new TH1D("h1", "h1", 50, -5, 5);
+   h1->FillRandom("gaus", 5000);
+   TFitResultPtr fitres = h1->Fit("gaus", "S0");
+   h1->Sumw2();
+   h1->GetXaxis()->SetTitle("x");
+   h1->GetYaxis()->SetTitle("y");
+   auto rp1 = new TRatioPlot(h1, "errfunc");
+   rp1->SetGraphDrawOpt("L");
+   rp1->SetSeparationMargin(0.0);
+   rp1->Draw();
+   rp1->GetLowerRefGraph()->SetMinimum(-2);
+   rp1->GetLowerRefGraph()->SetMaximum(2);
+}
+/// \file
+/// \ingroup tutorial_hist
+/// Example displaying two histograms and their ratio. This macro does not use the
+/// class TRatioPlot. For ROOT version >= 6.08 TRatioPlot should be used. See
+/// the other ratio plots examples in this folder.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+void ratioplotOld( ) {
+   // Define two gaussian histograms. Note the X and Y title are defined
+   // at booking time using the convention "Hist_title ; X_title ; Y_title"
+   TH1F *h1 = new TH1F("h1", "Two gaussian plots and their ratio;x title; h1 and h2 gaussian histograms", 100, -5, 5);
+   TH1F *h2 = new TH1F("h2", "h2", 100, -5, 5);
+   h1->FillRandom("gaus");
+   h2->FillRandom("gaus");
+
+   // Define the Canvas
+   TCanvas *c = new TCanvas("c", "canvas", 800, 800);
+
+   // Upper plot will be in pad1
+   TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1.0);
+   pad1->SetBottomMargin(0); // Upper and lower plot are joined
+   pad1->SetGridx();         // Vertical grid
+   pad1->Draw();             // Draw the upper pad: pad1
+   pad1->cd();               // pad1 becomes the current pad
+   h1->SetStats(0);          // No statistics on upper plot
+   h1->Draw();               // Draw h1
+   h2->Draw("same");         // Draw h2 on top of h1
+
+   // Do not draw the Y axis label on the upper plot and redraw a small
+   // axis instead, in order to avoid the first label (0) to be clipped.
+   h1->GetYaxis()->SetLabelSize(0.);
+   TGaxis *axis = new TGaxis( -5, 20, -5, 220, 20,220,510,"");
+   axis->SetLabelFont(43); // Absolute font size in pixel (precision 3)
+   axis->SetLabelSize(15);
+   axis->Draw();
+
+   // lower plot will be in pad
+   c->cd();          // Go back to the main canvas before defining pad2
+   TPad *pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.3);
+   pad2->SetTopMargin(0);
+   pad2->SetBottomMargin(0.2);
+   pad2->SetGridx(); // vertical grid
+   pad2->Draw();
+   pad2->cd();       // pad2 becomes the current pad
+
+   // Define the ratio plot
+   TH1F *h3 = (TH1F*)h1->Clone("h3");
+   h3->SetLineColor(kBlack);
+   h3->SetMinimum(0.8);  // Define Y ..
+   h3->SetMaximum(1.35); // .. range
+   h3->Sumw2();
+   h3->SetStats(0);      // No statistics on lower plot
+   h3->Divide(h2);
+   h3->SetMarkerStyle(21);
+   h3->Draw("ep");       // Draw the ratio plot
+
+   // h1 settings
+   h1->SetLineColor(kBlue+1);
+   h1->SetLineWidth(2);
+
+   // Y axis h1 plot settings
+   h1->GetYaxis()->SetTitleSize(20);
+   h1->GetYaxis()->SetTitleFont(43);
+   h1->GetYaxis()->SetTitleOffset(1.55);
+
+   // h2 settings
+   h2->SetLineColor(kRed);
+   h2->SetLineWidth(2);
+
+   // Ratio plot (h3) settings
+   h3->SetTitle(""); // Remove the ratio title
+
+   // Y axis ratio plot settings
+   h3->GetYaxis()->SetTitle("ratio h1/h2 ");
+   h3->GetYaxis()->SetNdivisions(505);
+   h3->GetYaxis()->SetTitleSize(20);
+   h3->GetYaxis()->SetTitleFont(43);
+   h3->GetYaxis()->SetTitleOffset(1.55);
+   h3->GetYaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)
+   h3->GetYaxis()->SetLabelSize(15);
+
+   // X axis ratio plot settings
+   h3->GetXaxis()->SetTitleSize(20);
+   h3->GetXaxis()->SetTitleFont(43);
+   h3->GetXaxis()->SetTitleOffset(4.);
+   h3->GetXaxis()->SetLabelFont(43); // Absolute font size in pixel (precision 3)
+   h3->GetXaxis()->SetLabelSize(15);
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook -js
+/// Rebin a variable bin-width histogram.
+///
+/// This tutorial illustrates how to:
+///   - create a variable bin-width histogram with a binning such
+///     that the population per bin is about the same.
+///   - rebin a variable bin-width histogram into another one.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+#include "TH1.h"
+#include "TCanvas.h"
+void rebin() {
+   //create a fix bin histogram
+   TH1F *h = new TH1F("h","test rebin",100,-3,3);
+   Int_t nentries = 1000;
+   h->FillRandom("gaus",nentries);
+   Double_t xbins[1001];
+   Int_t k=0;
+   TAxis *axis = h->GetXaxis();
+   for (Int_t i=1;i<=100;i++) {
+      Int_t y = (Int_t)h->GetBinContent(i);
+      if (y <=0) continue;
+      Double_t dx = axis->GetBinWidth(i)/y;
+      Double_t xmin = axis->GetBinLowEdge(i);
+      for (Int_t j=0;j<y;j++) {
+         xbins[k] = xmin +j*dx;
+         k++;
+      }
+   }
+   xbins[k] = axis->GetXmax();
+   //create a variable bin-width histogram out of fix bin histogram
+   //new rebinned histogram should have about 10 entries per bin
+   TH1F *hnew = new TH1F("hnew","rebinned",k,xbins);
+   hnew->FillRandom("gaus",10*nentries);
+
+   //rebin hnew keeping only 50% of the bins
+   Double_t xbins2[501];
+   Int_t kk=0;
+   for (Int_t j=0;j<k;j+=2) {
+      xbins2[kk] = xbins[j];
+      kk++;
+   }
+   xbins2[kk] = xbins[k];
+   TH1F *hnew2 = (TH1F*)hnew->Rebin(kk,"hnew2",xbins2);
+
+   //draw the 3 histograms
+   TCanvas *c1 = new TCanvas("c1","c1",800,1000);
+   c1->Divide(1,3);
+   c1->cd(1);
+   h->Draw();
+   c1->cd(2);
+   hnew->Draw();
+   c1->cd(3);
+   hnew2->Draw();
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example showing an histogram with reverse axis.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+void ReverseXAxis (TH1 *h);
+void ReverseYAxis (TH1 *h);
+
+void reverseaxis()
+{
+   TH2F *hpxpy  = new TH2F("hpxpy","py vs px",40,-4,4,40,-4,4);
+   Float_t px, py;
+   TRandom r;
+   for (Int_t i = 0; i < 25000; i++) {
+      r.Rannor(px,py);
+      hpxpy->Fill(px,py);
+   }
+   TCanvas *c1 = new TCanvas("c1");
+   hpxpy->Draw("colz");
+   ReverseXAxis(hpxpy);
+   ReverseYAxis(hpxpy);
+}
+
+void ReverseXAxis(TH1 *h)
+{
+   // Remove the current axis
+   h->GetXaxis()->SetLabelOffset(999);
+   h->GetXaxis()->SetTickLength(0);
+
+   // Redraw the new axis
+   gPad->Update();
+   TGaxis *newaxis = new TGaxis(gPad->GetUxmax(),
+                                gPad->GetUymin(),
+                                gPad->GetUxmin(),
+                                gPad->GetUymin(),
+                                h->GetXaxis()->GetXmin(),
+                                h->GetXaxis()->GetXmax(),
+                                510,"-");
+   newaxis->SetLabelOffset(-0.03);
+   newaxis->Draw();
+}
+
+void ReverseYAxis(TH1 *h)
+{
+   // Remove the current axis
+   h->GetYaxis()->SetLabelOffset(999);
+   h->GetYaxis()->SetTickLength(0);
+
+   // Redraw the new axis
+   gPad->Update();
+   TGaxis *newaxis = new TGaxis(gPad->GetUxmin(),
+                                gPad->GetUymax(),
+                                gPad->GetUxmin()-0.001,
+                                gPad->GetUymin(),
+                                h->GetYaxis()->GetXmin(),
+                                h->GetYaxis()->GetXmax(),
+                                510,"+");
+   newaxis->SetLabelOffset(-0.03);
+   newaxis->Draw();
+}
+/// \file
+/// \ingroup tutorial_hist
+/// Evaluate the performance of THnSparse vs TH1/2/3/nF
+/// for different numbers of dimensions and bins per dimension.
+///
+/// The script calculates the bandwidth for filling and retrieving
+/// bin contents (in million entries per second) for these two
+/// histogramming techniques, where "seconds" is CPU and real time.
+///
+/// The first line of the plots contains the bandwidth based on the
+/// CPU time (THnSpase, TH1/2/3/nF*, ratio), the second line shows
+/// the plots for real time, and the third line shows the fraction of
+/// filled bins and memory used by THnSparse vs. TH1/2/3/nF.
+///
+/// The timing depends on the distribution and the amount of entries
+/// in the histograms; here, a Gaussian distribution (center is
+/// contained in the histograms) is used to fill each histogram with
+/// 1000 entries. The filling and reading is repeated until enough
+/// statistics have been collected.
+///
+/// tutorials/tree/drawsparse.C shows an example for visualizing a
+/// THnSparse. It creates a TTree which is then drawn using
+/// TParallelCoord.
+///
+/// This macro should be run in compiled mode due to the many nested
+/// loops that force CINT to disable its optimization. If run
+/// interpreted one would not benchmark THnSparse but CINT.
+///
+///  Run as:
+/// ~~~{.cpp}
+///  root[0] .L $ROOTSYS/tutorials/hist/sparsehist.C+
+///  root[1] sparsehist()
+/// ~~~
+///
+/// \macro_code
+///
+/// \author Axel.Naumann
+
+#include "TH1.h"
+#include "TH2.h"
+#include "TH3.h"
+#include "THn.h"
+#include "THnSparse.h"
+#include "TStopwatch.h"
+#include "TRandom.h"
+#include "TCanvas.h"
+#include "TFile.h"
+#include "TStyle.h"
+#include "TSystem.h"
+
+#ifndef INT_MAX
+#define INT_MAX std::numeric_limits<int>::max()
+#endif
+
+class TTimeHists {
+public:
+   enum EHist { kHist, kSparse, kNumHist };
+   enum ETime { kReal, kCPU, kNumTime };
+   TTimeHists(Int_t dim, Int_t bins, Long_t num):
+      fValue(0), fDim(dim), fBins(bins), fNum(num),
+      fSparse(0), fHist(0), fHn(0) {}
+   ~TTimeHists();
+   bool Run();
+   Double_t GetTime(EHist hist, ETime time) const {
+      if (time == kReal) return fTime[hist][0];
+      return fTime[hist][1]; }
+   static void SetDebug(Int_t lvl) { fgDebug = lvl; }
+   THnSparse* GetSparse() const { return fSparse; }
+
+protected:
+   void Fill(EHist hist);
+   Double_t Check(EHist hist);
+   void SetupHist(EHist hist);
+   void NextValues();
+   void SetupValues();
+
+private:
+   Double_t* fValue;
+   Int_t fDim;
+   Int_t fBins;
+   Long_t fNum;
+   Double_t fTime[2][2];
+   THnSparse* fSparse;
+   TH1*       fHist;
+   THn*       fHn;
+   static Int_t fgDebug;
+};
+
+Int_t TTimeHists::fgDebug = 0;
+
+TTimeHists::~TTimeHists()
+{
+   delete [] fValue;
+   delete fSparse;
+   delete fHist;
+   delete fHn;
+}
+
+bool TTimeHists::Run()
+{
+   // run all tests with current settings, and check for identity of content.
+
+   Double_t check[2];
+   Long64_t rep[2];
+   for (int h = 0; h < 2; ++h) {
+      rep[h] = 0;
+      SetupValues();
+      try {
+         TStopwatch w;
+         w.Start();
+         SetupHist((EHist) h);
+         w.Stop();
+         do {
+            w.Start(kFALSE);
+            Fill((EHist) h);
+            check[h] = Check((EHist) h);
+            w.Stop();
+            ++rep[h];
+         } while ((!h && w.RealTime() < 0.1)
+            || (h && rep[0] > 0 && rep[1] < rep[0]));
+
+         fTime[h][0] = (1.* fNum * rep[h]) / w.RealTime() / 1E6;
+         fTime[h][1] = (1.* fNum * rep[h]) / w.CpuTime() / 1E6;
+
+         if (h == 1 && (fTime[h][0] > 1E20 || fTime[h][1] > 1E20)) {
+            do {
+               // some more cycles:
+               w.Start(kFALSE);
+               Fill((EHist) h);
+               Check((EHist) h);
+               w.Stop();
+               ++rep[h];
+            } while (w.RealTime() < 0.1);
+
+            fTime[h][0] = (1.* fNum * rep[h]) / w.RealTime() / 1E6;
+            fTime[h][1] = (1.* fNum * rep[h]) / w.CpuTime() / 1E6;
+         }
+
+         if (fTime[h][0] > 1E20) fTime[h][0] = 1E20;
+         if (fTime[h][1] > 1E20) fTime[h][1] = 1E20;
+      }
+      catch (std::exception&) {
+         fTime[h][0] = fTime[h][1] = -1.;
+         check[h] = -1.; // can never be < 1 without exception
+         rep[h] = -1;
+      }
+   }
+   if (check[0] != check[1])
+      if (check[0] != -1.)
+         printf("ERROR: mismatch of histogram (%g) and sparse histogram (%g) for dim=%d, bins=%d!\n",
+                check[0], check[1], fDim, fBins);
+      // else
+      //   printf("ERROR: cannot allocate histogram for dim=%d, bins=%d - out of memory!\n",
+      //          fDim, fBins);
+   return (check[0] == check[1]);
+}
+
+void TTimeHists::NextValues()
+{
+   for (Int_t d = 0; d < fDim; ++d)
+      fValue[d] = gRandom->Gaus() / 4.;
+}
+
+void TTimeHists::SetupValues()
+{
+   // define fValue
+   if (!fValue) fValue = new Double_t[fDim];
+   gRandom->SetSeed(42);
+}
+
+void TTimeHists::Fill(EHist hist)
+{
+   for (Long_t n = 0; n < fNum; ++n) {
+      NextValues();
+      if (fgDebug > 1) {
+         printf("%ld: fill %s", n, hist == kHist? (fDim < 4 ? "hist" : "arr") : "sparse");
+         for (Int_t d = 0; d < fDim; ++d)
+            printf("[%g]", fValue[d]);
+         printf("\n");
+      }
+      if (hist == kHist) {
+         switch (fDim) {
+         case 1: fHist->Fill(fValue[0]); break;
+         case 2: ((TH2F*)fHist)->Fill(fValue[0], fValue[1]); break;
+         case 3: ((TH3F*)fHist)->Fill(fValue[0], fValue[1], fValue[2]); break;
+         default: fHn->Fill(fValue); break;
+         }
+      } else {
+         fSparse->Fill(fValue);
+      }
+   }
+}
+
+void TTimeHists::SetupHist(EHist hist)
+{
+   if (hist == kHist) {
+      switch (fDim) {
+      case 1: fHist = new TH1F("h1", "h1", fBins, -1., 1.); break;
+      case 2: fHist = new TH2F("h2", "h2", fBins, -1., 1., fBins, -1., 1.); break;
+      case 3: fHist = new TH3F("h3", "h3", fBins, -1., 1., fBins, -1., 1., fBins, -1., 1.); break;
+      default:
+         {
+            MemInfo_t meminfo;
+            gSystem->GetMemInfo(&meminfo);
+            Int_t size = 1;
+            for (Int_t d = 0; d < fDim; ++d) {
+               if ((Int_t)(size * sizeof(Float_t)) > INT_MAX / (fBins + 2)
+                  || (meminfo.fMemFree > 0
+                  && meminfo.fMemFree / 2 < (Int_t) (size * sizeof(Float_t)/1000/1000)))
+                  throw std::bad_alloc();
+               size *= (fBins + 2);
+            }
+            if (meminfo.fMemFree > 0
+               && meminfo.fMemFree / 2 < (Int_t) (size * sizeof(Float_t)/1000/1000))
+               throw std::bad_alloc();
+            Int_t* bins = new Int_t[fDim];
+            Double_t *xmin = new Double_t[fDim];
+            Double_t *xmax = new Double_t[fDim];
+            for (Int_t d = 0; d < fDim; ++d) {
+               bins[d] = fBins;
+               xmin[d] = -1.;
+               xmax[d] =  1.;
+            }
+            fHn = new THnF("hn", "hn", fDim, bins, xmin, xmax);
+         }
+      }
+   } else {
+      Int_t* bins = new Int_t[fDim];
+      Double_t *xmin = new Double_t[fDim];
+      Double_t *xmax = new Double_t[fDim];
+      for (Int_t d = 0; d < fDim; ++d) {
+         bins[d] = fBins;
+         xmin[d] = -1.;
+         xmax[d] =  1.;
+      }
+      fSparse = new THnSparseF("hs", "hs", fDim, bins, xmin, xmax);
+   }
+}
+
+Double_t TTimeHists::Check(EHist hist)
+{
+   // Check bin content of all bins
+   Double_t check = 0.;
+   Int_t* x = new Int_t[fDim];
+   memset(x, 0, sizeof(Int_t) * fDim);
+
+   if (hist == kHist) {
+      Long_t idx = 0;
+      Long_t size = 1;
+      for (Int_t d = 0; d < fDim; ++d)
+         size *= (fBins + 2);
+      while (x[0] <= fBins + 1) {
+         Double_t v = -1.;
+         if (fDim < 4) {
+            Long_t histidx = x[0];
+            if (fDim == 2) histidx = fHist->GetBin(x[0], x[1]);
+            else if (fDim == 3) histidx = fHist->GetBin(x[0], x[1], x[2]);
+            v = fHist->GetBinContent(histidx);
+         }
+         else v = fHn->GetBinContent(x);
+         Double_t checkx = 0.;
+         if (v)
+            for (Int_t d = 0; d < fDim; ++d)
+               checkx += x[d];
+         check += checkx * v;
+
+         if (fgDebug > 2 || (fgDebug > 1 && v)) {
+            printf("%s%d", fDim < 4 ? "hist" : "arr", fDim);
+            for (Int_t d = 0; d < fDim; ++d)
+               printf("[%d]", x[d]);
+            printf(" = %g\n", v);
+         }
+
+         ++x[fDim - 1];
+         // Adjust the bin idx
+         // no wrapping for dim 0 - it's what we break on!
+         for (Int_t d = fDim - 1; d > 0; --d) {
+            if (x[d] > fBins + 1) {
+               x[d] = 0;
+               ++x[d - 1];
+            }
+         }
+         ++idx;
+      } // while next bin
+   } else {
+      for (Long64_t i = 0; i < fSparse->GetNbins(); ++i) {
+         Double_t v = fSparse->GetBinContent(i, x);
+         Double_t checkx = 0.;
+         for (Int_t d = 0; d < fDim; ++d)
+            checkx += x[d];
+         check += checkx * v;
+
+         if (fgDebug > 1) {
+            printf("sparse%d", fDim);
+            for (Int_t d = 0; d < fDim; ++d)
+               printf("[%d]", x[d]);
+            printf(" = %g\n", v);
+         }
+      }
+   }
+   check /= fNum;
+   if (fgDebug > 0)
+      printf("check %s%d = %g\n", hist == kHist ? (fDim < 4 ? "hist" : "arr") : "sparse", fDim, check);
+   return check;
+}
+
+
+void sparsehist() {
+// Exclude this macro also for Cling as this script requires exception support
+// which is not supported in Cling as of v6.00/00.
+#if defined (__CLING__)
+   printf("Please run this script in compiled mode by running \".x sparsehist.C+\"\n");
+   return;
+#endif
+
+   TH2F* htime[TTimeHists::kNumHist][TTimeHists::kNumTime];
+   for (int h = 0; h < TTimeHists::kNumHist; ++h)
+      for (int t = 0; t < TTimeHists::kNumTime; ++t) {
+         TString name("htime_");
+         if (h == 0) name += "arr";
+         else name += "sp";
+         if (t == 0) name += "_r";
+
+         TString title;
+         title.Form("Throughput (fill,get) %s (%s, 1M entries/sec);dim;bins;1M entries/sec", h == 0 ? "TH1/2/3/nF" : "THnSparseF", t == 0 ? "real" : "CPU");
+         htime[h][t] = new TH2F(name, title, 6, 0.5, 6.5, 10, 5, 105);
+      }
+
+   TH2F* hsparse_mem = new TH2F("hsparse_mem", "Fractional memory usage;dim;bins;fraction of memory used", 6, 0.5, 6.5, 10, 5, 105);
+   TH2F* hsparse_bins = new TH2F("hsparse_bins", "Fractional number of used bins;dim;bins;fraction of filled bins", 6, 0.5, 6.5, 10, 5, 105);
+
+   // TTimeHists::SetDebug(2);
+   Double_t max = -1.;
+   for (Int_t dim = 1; dim < 7; ++dim) {
+      printf("Processing dimension %d", dim);
+      for (Int_t bins = 10; bins <= 100; bins += 10) {
+         TTimeHists timer(dim, bins, /*num*/ 1000);
+         timer.Run();
+         for (int h = 0; h < TTimeHists::kNumHist; ++h) {
+            for (int t = 0; t < TTimeHists::kNumTime; ++t) {
+               Double_t time = timer.GetTime((TTimeHists::EHist)h, (TTimeHists::ETime)t);
+               if (time >= 0.)
+                  htime[h][t]->Fill(dim, bins, time);
+            }
+         }
+         hsparse_mem->Fill(dim, bins, timer.GetSparse()->GetSparseFractionMem());
+         hsparse_bins->Fill(dim, bins, timer.GetSparse()->GetSparseFractionBins());
+
+         if (max < timer.GetTime(TTimeHists::kSparse, TTimeHists::kReal))
+            max = timer.GetTime(TTimeHists::kSparse, TTimeHists::kReal);
+         printf(".");
+         fflush(stdout);
+      }
+      printf(" done\n");
+   }
+
+   Double_t markersize = 2.5;
+   hsparse_mem->SetMarkerSize(markersize);
+   hsparse_bins->SetMarkerSize(markersize);
+
+   TH2F* htime_ratio[TTimeHists::kNumTime];
+   for (int t = 0; t < TTimeHists::kNumTime; ++t) {
+      const char* name = t ? "htime_ratio" : "htime_ratio_r";
+      htime_ratio[t] = (TH2F*) htime[TTimeHists::kSparse][t]->Clone(name);
+      TString title;
+      title.Form("Relative speed improvement (%s, 1M entries/sec): sparse/hist;dim;bins;#Delta 1M entries/sec", t == 0 ? "real" : "CPU");
+      htime_ratio[t]->SetTitle(title);
+      htime_ratio[t]->Divide(htime[TTimeHists::kHist][t]);
+      htime_ratio[t]->SetMinimum(0.1);
+      htime_ratio[t]->SetMarkerSize(markersize);
+   }
+
+   TFile* f = new TFile("sparsehist.root","RECREATE");
+
+   TCanvas* canv= new TCanvas("c","c");
+   canv->Divide(3,3);
+
+   gStyle->SetPalette(8,0);
+   gStyle->SetPaintTextFormat(".2g");
+   gStyle->SetOptStat(0);
+   const char* opt = "TEXT COL";
+
+   for (int t = 0; t < TTimeHists::kNumTime; ++t) {
+      for (int h = 0; h < TTimeHists::kNumHist; ++h) {
+         htime[h][t]->SetMaximum(max);
+         htime[h][t]->SetMarkerSize(markersize);
+         canv->cd(1 + h + 3 * t);
+         htime[h][t]->Draw(opt);
+         htime[h][t]->Write();
+      }
+      canv->cd(3 + t * 3);
+      htime_ratio[t]->Draw(opt); gPad->SetLogz();
+      htime_ratio[t]->Write();
+   }
+
+   canv->cd(7); hsparse_mem->Draw(opt);
+   canv->cd(8); hsparse_bins->Draw(opt);
+   hsparse_mem->Write();
+   hsparse_bins->Write();
+
+   canv->Write();
+
+   delete f;
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Edit statistics box.
+///
+/// This example shows:
+///  - how to remove a stat element from the stat box
+///  - how to add a new one
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author  Olivier Couet
+
+TCanvas *statsEditing() {
+   // Create and plot a test histogram with stats
+   TCanvas *se = new TCanvas;
+   TH1F *h = new TH1F("h","test",100,-3,3);
+   h->FillRandom("gaus",3000);
+   gStyle->SetOptStat();
+   h->Draw();
+   se->Update();
+
+   // Retrieve the stat box
+   TPaveStats *ps = (TPaveStats*)se->GetPrimitive("stats");
+   ps->SetName("mystats");
+   TList *listOfLines = ps->GetListOfLines();
+
+   // Remove the RMS line
+   TText *tconst = ps->GetLineWith("RMS");
+   listOfLines->Remove(tconst);
+
+   // Add a new line in the stat box.
+   // Note that "=" is a control character
+   TLatex *myt = new TLatex(0,0,"Test = 10");
+   myt ->SetTextFont(42);
+   myt ->SetTextSize(0.04);
+   myt ->SetTextColor(kRed);
+   listOfLines->Add(myt);
+
+   // the following line is needed to avoid that the automatic redrawing of stats
+   h->SetStats(0);
+
+   se->Modified();
+   return se;
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Histogram smoothing.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+int ipad = 1;
+TCanvas * c1 = 0;
+
+void smooth_hist(const char * fname, double xmin, double xmax, int n1, int n2) {
+
+   std::cout << "smoothing a " << fname << " histogram" << std::endl;
+
+   TH1D * h1 = new TH1D("h1","h1",100,xmin,xmax);
+   TH1D * h2 = new TH1D("h2","h2",100,xmin,xmax);
+   h1->FillRandom(fname,n1);
+
+   TH1D * h1_s = new TH1D(*h1);
+   h1_s->SetName("h1_s");
+   h1_s->Smooth();
+
+   h2->FillRandom(fname,n2);
+
+   double p1 = h1->Chi2Test(h2,"");
+   double p2 = h1_s->Chi2Test(h2,"UU");
+   if (p2 < p1) Error("testSmooth","TH1::Smooth is not working correctly - a worst chi2 is obtained");
+
+   std::cout << " chi2 test non-smoothed histo " << p1 <<  std::endl;
+   std::cout << " chi2 test smoothed histo     " << p2 <<  std::endl;
+
+   double a1 = h1->AndersonDarlingTest(h2);
+   double a2 = h1_s->AndersonDarlingTest(h2);
+
+   std::cout << " AD test non-smoothed histo " << a1 <<  std::endl;
+   std::cout << " AD test smoothed histo     " << a2 <<  std::endl;
+
+   double k1 = h1->KolmogorovTest(h2);
+   double k2 = h1_s->KolmogorovTest(h2);
+
+   std::cout << " KS test non-smoothed histo " << k1 <<  std::endl;
+   std::cout << " KS test smoothed histo     " << k2 <<  std::endl;
+
+   c1->cd(ipad++);
+   h1->Draw("E");
+   h1_s->SetLineColor(kRed);
+   h1_s->Draw("same");
+   h2->Scale(double(n1)/n2);
+   h2->SetLineColor(kGreen);
+   h2->Draw("same");
+}
+
+void testSmooth(int n1 = 1000, int n2 = 1000000) {
+
+   TH1::AddDirectory(false);
+
+   c1  = new TCanvas();
+   c1->Divide(1,3);
+
+
+   smooth_hist("gaus",-5,5,n1,n2);
+   smooth_hist("landau",-5,15,n1,n2);
+   smooth_hist("expo",-5,0,n1,n2);
+
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// This tutorial illustrates how to create an histogram with polygonal
+/// bins (TH2Poly). The bins are boxes.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+TCanvas *th2polyBoxes() {
+   TCanvas *ch2p2 = new TCanvas("ch2p2","ch2p2",600,400);
+   gStyle->SetPalette(57);
+   TH2Poly *h2p = new TH2Poly();
+   h2p->SetName("Boxes");
+   h2p->SetTitle("Boxes");
+
+   Int_t i,j;
+   Int_t nx = 40;
+   Int_t ny = 40;
+   Double_t xval1,yval1,xval2,yval2;
+   Double_t dx=0.2, dy=0.1;
+   xval1 = 0.;
+   xval2 = dx;
+
+   for (i = 0; i<nx; i++) {
+      yval1 = 0.;
+      yval2 = dy;
+      for (j = 0; j<ny; j++) {
+         h2p->AddBin(xval1, yval1, xval2, yval2);
+         yval1 = yval2;
+         yval2 = yval2+yval2*dy;
+      }
+      xval1 = xval2;
+      xval2 = xval2+xval2*dx;
+   }
+
+   TRandom ran;
+   for (i = 0; i<300000; i++) {
+      h2p->Fill(50*ran.Gaus(2.,1), ran.Gaus(2.,1));
+   }
+
+   h2p->Draw("COLZ");
+   return ch2p2;
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook -js
+/// This tutorial illustrates how to create an histogram with polygonal
+/// bins (TH2Poly), fill it and draw it. The initial data are stored
+/// in TMultiGraphs. They represent the european countries.
+/// The histogram filling is done according to a Mercator projection,
+/// therefore the bin contains should be proportional to the real surface
+/// of the countries.
+///
+/// The initial data have been downloaded from: http://www.maproom.psu.edu/dcw/
+/// This database was developed in 1991/1992 and national boundaries reflect
+/// political reality as of that time.
+///
+/// The script is shooting npoints (script argument) randomly over the Europe area.
+/// The number of points inside the countries should be proportional to the country surface
+/// The estimated surface is compared to the surfaces taken from wikipedia.
+///
+/// \macro_image
+/// \macro_output
+/// \macro_code
+///
+/// \author Olivier Couet
+
+void th2polyEurope(Int_t npoints=500000)
+{
+   Int_t i,j;
+   Double_t lon1 = -25;
+   Double_t lon2 =  35;
+   Double_t lat1 =  34;
+   Double_t lat2 =  72;
+   Double_t R = (lat2-lat1)/(lon2-lon1);
+   Int_t W    = 800;
+   Int_t H    = (Int_t)(R*800);
+   gStyle->SetStatX(0.28);
+   gStyle->SetStatY(0.45);
+   gStyle->SetStatW(0.15);
+
+   // Canvas used to draw TH2Poly (the map)
+   TCanvas *ce = new TCanvas("ce", "ce",0,0,W,H);
+   ce->ToggleEventStatus();
+   ce->SetGridx();
+   ce->SetGridy();
+
+   // Real surfaces taken from Wikipedia.
+   const Int_t nx = 36;
+   // see http://en.wikipedia.org/wiki/Area_and_population_of_European_countries
+   const char *countries[nx] = {
+      "france",     "spain",  "sweden",  "germany",       "finland",
+      "norway",     "poland", "italy",   "yugoslavia",    "united_kingdom",
+      "romania",    "belarus","greece",  "czechoslovakia","bulgaria",
+      "iceland",    "hungary","portugal","austria",       "ireland",
+      "lithuania",  "latvia", "estonia", "denmark",       "netherlands",
+      "switzerland","moldova","belgium", "albania",       "cyprus",
+      "luxembourg", "andorra","malta",   "liechtenstein", "san_marino", "monaco" };
+   Float_t surfaces[nx] = {
+      547030,        505580,   449964,      357021,        338145,
+      324220,        312685,   301230,      255438,        244820,
+      237500,        207600,   131940,      127711,        110910,
+      103000,         93030,    89242,       83870,         70280,
+      65200,         64589,    45226,       43094,         41526,
+      41290,         33843,    30528,       28748,          9250,
+      2586,           468,      316,         160,            61, 2};
+
+   TH1F *h = new TH1F("h","Countries surfaces (in km^{2})",3,0,3);
+   for (i=0; i<nx; i++) h->Fill(countries[i], surfaces[i]);
+   h->LabelsDeflate();
+
+   TFile::SetCacheFileDir(".");
+   TFile *f;
+   f = TFile::Open("http://root.cern.ch/files/europe.root","cacheread");
+
+   if (!f) {
+      printf("Cannot access europe.root. Is internet working ?\n");
+      return;
+   }
+
+   TH2Poly *p = new TH2Poly(
+             "Europe",
+             "Europe (bin contents are normalized to the surfaces in km^{2})",
+             lon1,lon2,lat1,lat2);
+   p->GetXaxis()->SetNdivisions(520);
+   p->GetXaxis()->SetTitle("longitude");
+   p->GetYaxis()->SetTitle("latitude");
+
+   p->SetContour(100);
+
+   TMultiGraph *mg;
+   TKey *key;
+   TIter nextkey(gDirectory->GetListOfKeys());
+   while ((key = (TKey*)nextkey())) {
+      TObject *obj = key->ReadObj();
+      if (obj->InheritsFrom("TMultiGraph")) {
+         mg = (TMultiGraph*)obj;
+         p->AddBin(mg);
+      }
+   }
+
+   TRandom r;
+   Double_t longitude, latitude;
+   Double_t x, y, pi4 = TMath::Pi()/4, alpha = TMath::Pi()/360;
+
+   gBenchmark->Start("Partitioning");
+   p->ChangePartition(100, 100);
+   gBenchmark->Show("Partitioning");
+
+   // Fill TH2Poly according to a Mercator projection.
+   gBenchmark->Start("Filling");
+   for (i=0; i<npoints; i++) {
+      longitude = r.Uniform(lon1,lon2);
+      latitude  = r.Uniform(lat1,lat2);
+      x         = longitude;
+      y         = 38*TMath::Log(TMath::Tan(pi4+alpha*latitude));
+      p->Fill(x,y);
+   }
+   gBenchmark->Show("Filling");
+
+   Int_t nbins = p->GetNumberOfBins();
+   Double_t maximum = p->GetMaximum();
+
+
+   // h2 contains the surfaces computed from TH2Poly.
+   TH1F *h2 = (TH1F *)h->Clone("h2");
+   h2->Reset();
+   for (j=0; j<nx; j++) {
+      for (i=0; i<nbins; i++) {
+         if (strstr(countries[j],p->GetBinName(i+1))) {
+            h2->Fill(countries[j],p->GetBinContent(i+1));
+            h2->SetBinError(j, p->GetBinError(i+1));
+         }
+      }
+   }
+
+   // Normalize the TH2Poly bin contents to the real surfaces.
+   Double_t scale = surfaces[0]/maximum;
+   for (i=0; i<nbins; i++) p->SetBinContent(i+1, scale*p->GetBinContent(i+1));
+
+   gStyle->SetOptStat(1111);
+   p->Draw("COLZ");
+
+   TCanvas *c1 = new TCanvas("c1", "c1",W+10,0,W-20,H);
+   c1->SetRightMargin(0.047);
+
+   scale = h->GetMaximum()/h2->GetMaximum();
+
+   h->SetStats(0);
+   h->SetLineColor(kRed-3);
+   h->SetLineWidth(2);
+   h->SetMarkerStyle(20);
+   h->SetMarkerColor(kBlue);
+   h->SetMarkerSize(0.8);
+   h->Draw("LP");
+   h->GetXaxis()->SetLabelFont(42);
+   h->GetXaxis()->SetLabelSize(0.03);
+   h->GetYaxis()->SetLabelFont(42);
+
+   h2->Scale(scale);
+   Double_t scale2=TMath::Sqrt(scale);
+   for (i=0; i<nx; i++) h2->SetBinError(i+1, scale2*h2->GetBinError(i+1));
+   h2->Draw("E SAME");
+   h2->SetMarkerStyle(20);
+   h2->SetMarkerSize(0.8);
+
+   TLegend *leg = new TLegend(0.5,0.67,0.92,0.8,NULL,"NDC");
+   leg->SetTextFont(42);
+   leg->SetTextSize(0.025);
+   leg->AddEntry(h,"Real countries surfaces from Wikipedia (in km^{2})","lp");
+   leg->AddEntry(h2,"Countries surfaces from TH2Poly (with errors)","lp");
+   leg->Draw();
+   leg->Draw();
+
+   Double_t wikiSum = h->Integral();
+   Double_t polySum = h2->Integral();
+   Double_t error = TMath::Abs(wikiSum-polySum)/wikiSum;
+   printf("THPoly Europe surface estimation error wrt wikipedia = %f per cent when using %d points\n",100*error,npoints);
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook -js
+/// This tutorial illustrates how to create an histogram with hexagonal
+/// bins (TH2Poly). The method TH2Poly::Honeycomb allows to build automatically
+/// an honeycomb binning.
+///
+/// \macro_code
+/// \macro_image
+///
+/// \author  Olivier Couet
+
+void th2polyHoneycomb(){
+   TH2Poly *hc = new TH2Poly();
+   hc->SetTitle("Honeycomb example");
+   hc->Honeycomb(0,0,.1,25,25);
+
+   TRandom ran;
+   for (int i = 0; i<30000; i++) {
+      hc->Fill(ran.Gaus(2.,1), ran.Gaus(2.,1));
+   }
+
+   hc->Draw("colz");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook -js
+/// This tutorial illustrates how to create an histogram with polygonal
+/// bins (TH2Poly), fill it and draw it using the `col` option. The initial data
+/// are stored in TMultiGraphs. They represent the USA map. Such histograms can
+/// be rendered in 3D using the option `legogl`.
+///
+/// The initial data have been downloaded from: http://www.maproom.psu.edu/dcw/
+/// This database was developed in 1991/1992 and national boundaries reflect
+/// political reality as of that time.
+///
+/// \macro_code
+/// \macro_image
+///
+/// \author Olivier Couet
+
+void th2polyUSA()
+{
+   Int_t i, bin;
+   const Int_t nx = 48;
+   const char *states [nx] = {
+      "alabama",      "arizona",        "arkansas",       "california",
+      "colorado",     "connecticut",    "delaware",       "florida",
+      "georgia",      "idaho",          "illinois",       "indiana",
+      "iowa",         "kansas",         "kentucky",       "louisiana",
+      "maine",        "maryland",       "massachusetts",  "michigan",
+      "minnesota",    "mississippi",    "missouri",       "montana",
+      "nebraska",     "nevada",         "new_hampshire",  "new_jersey",
+      "new_mexico",   "new_york",       "north_carolina", "north_dakota",
+      "ohio",         "oklahoma",       "oregon",         "pennsylvania",
+      "rhode_island", "south_carolina", "south_dakota",   "tennessee",
+      "texas",        "utah",           "vermont",        "virginia",
+      "washington",   "west_virginia",  "wisconsin",      "wyoming"
+   };
+   Double_t pop[nx] = {
+    4708708, 6595778,  2889450, 36961664, 5024748,  3518288,  885122, 18537969,
+    9829211, 1545801, 12910409,  6423113, 3007856,  2818747, 4314113,  4492076,
+    1318301, 5699478,  6593587,  9969727, 5266214,  2951996, 5987580,   974989,
+    1796619, 2643085,  1324575,  8707739, 2009671, 19541453, 9380884,   646844,
+   11542645, 3687050,  3825657, 12604767, 1053209,  4561242,  812383,  6296254,
+   24782302, 2784572,   621760,  7882590, 6664195,  1819777, 5654774,   544270
+   };
+
+   TCanvas *usa = new TCanvas("USA", "USA");
+   usa->ToggleEventStatus();
+   Double_t lon1 = -130;
+   Double_t lon2 = -65;
+   Double_t lat1 = 24;
+   Double_t lat2 = 50;
+   TH2Poly *p = new TH2Poly("USA","USA Population",lon1,lon2,lat1,lat2);
+
+   TFile::SetCacheFileDir(".");
+   TFile *f = TFile::Open("http://root.cern.ch/files/usa.root", "CACHEREAD");
+
+   if (!f) {
+      printf("Cannot access usa.root. Is internet working ?\n");
+      return;
+   }
+
+   // Define the TH2Poly bins.
+   TMultiGraph *mg;
+   TKey *key;
+   TIter nextkey(gDirectory->GetListOfKeys());
+   while ((key = (TKey*)nextkey())) {
+      TObject *obj = key->ReadObj();
+      if (obj->InheritsFrom("TMultiGraph")) {
+         mg = (TMultiGraph*)obj;
+         bin = p->AddBin(mg);
+      }
+   }
+
+   // Fill TH2Poly.
+   for (i=0; i<nx; i++) p->Fill(states[i], pop[i]);
+
+   gStyle->SetOptStat(11);
+   p->Draw("colz textn");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Palette coloring for 2D histograms' stack is activated thanks to the option `PFC`
+/// (Palette Fill Color).
+/// When this option is given to `THStack::Draw` the histograms  in the
+/// `THStack` get their color from the current color palette defined by
+/// `gStyle->SetPalette(...)`. The color is determined according to the number of
+/// histograms.
+///
+/// In this example four 2D histograms are displayed with palette coloring.
+/// The color of each graph is picked inside the palette number 1.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+void thstack2palettecolor () {
+   gStyle->SetPalette(1);
+   auto h1 = new TH2F("h1","h1",20,0,6,20,-4,4);
+   auto h2 = new TH2F("h2","h1",20,0,6,20,-4,4);
+   auto h3 = new TH2F("h3","h1",20,0,6,20,-4,4);
+   auto h4 = new TH2F("h4","h1",20,0,6,20,-4,4);
+   auto h5 = new TH2F("h5","h1",20,0,6,20,-4,4);
+   h2->Fill(2.,0.,5);
+   h3->Fill(3.,0.,10);
+   h4->Fill(4.,0.,15);
+   h5->Fill(5.,0.,20);
+   auto hs = new THStack("hs","Test of palette colored lego stack");
+   hs->Add(h1);
+   hs->Add(h2);
+   hs->Add(h3);
+   hs->Add(h4);
+   hs->Add(h5);
+   hs->Draw("0lego1 PFC");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Palette coloring for histograms' stack is activated thanks to the options `PFC`
+/// (Palette Fill Color), `PLC` (Palette Line Color) and `AMC` (Palette Marker Color).
+/// When one of these options is given to `THStack::Draw` the histograms  in the
+/// `THStack` get their color from the current color palette defined by
+/// `gStyle->SetPalette(...)`. The color is determined according to the number of
+/// histograms.
+///
+/// In this example four histograms are displayed with palette coloring.
+/// The color of each histogram is picked inside the palette `kOcean`.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+void thstackpalettecolor()
+{
+   auto hs = new THStack("hs","Stacked 1D histograms colored using kOcean palette");
+
+   gStyle->SetPalette(kOcean);
+
+   // Create three 1-d histograms  and add them in the stack
+   auto h1st = new TH1F("h1st","test hstack",100,-4,4);
+   h1st->FillRandom("gaus",20000);
+   hs->Add(h1st);
+
+   auto h2st = new TH1F("h2st","test hstack",100,-4,4);
+   h2st->FillRandom("gaus",15000);
+   hs->Add(h2st);
+
+   auto h3st = new TH1F("h3st","test hstack",100,-4,4);
+   h3st->FillRandom("gaus",10000);
+   hs->Add(h3st);
+
+   // draw the stack
+   hs->Draw("pfc nostack");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Different charges depending on region
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Filip Ilic
+
+#include <iostream>
+#include <fstream>
+#include <TProfile2Poly.h>
+#include <TProfile2D.h>
+#include <TCanvas.h>
+#include <TRandom.h>
+
+using namespace std;
+
+void tprofile2polyRealistic(Int_t numEvents=100000)
+{
+   int NUM_LS = 8;
+   TCanvas *c1 = new TCanvas("c1", "moving charge", 900, 400);
+   TCanvas *c2 = new TCanvas("c2", "Merge Individual moving charge plots", 800, 400);
+
+   c1->Divide(NUM_LS, 3);
+   c2->Divide(3,1);
+
+   // -------------------- Construct Reference plot bins ------------------------
+   auto new_avg = new TProfile2Poly();
+
+   auto tot_avg_ls = new TProfile2Poly[NUM_LS];
+   auto det_avg_ls = new TProfile2Poly[NUM_LS];
+   auto det_err_ls = new TProfile2Poly[NUM_LS];
+   auto tot_merge = new TProfile2Poly();
+   auto det_avg_merge = new TProfile2Poly();
+   auto det_err_merge = new TProfile2Poly();
+
+   float minx = -15;
+   float maxx = 15;
+   float miny = -15;
+   float maxy = 15;
+   float binsz = 0.5;
+
+   for (float i = minx; i < maxx; i += binsz) {
+      for (float j = miny; j < maxy; j += binsz) {
+        tot_merge->AddBin(i, j, i + binsz, j + binsz);
+        for (int l=0; l<NUM_LS; ++l) {
+          tot_avg_ls[l].AddBin(i, j, i + binsz, j + binsz);
+        }
+      }
+   }
+
+   // -------------------- Construct detector bins ------------------------
+   auto h2p = new TH2Poly();
+   auto tp2p = new TProfile2Poly();
+   ifstream infile;
+   TString dir = gROOT->GetTutorialDir();
+   dir.Append("/hist/data/tprofile2poly_tutorial.data");
+   infile.open(dir.Data());
+
+   if (!infile) // Verify that the file was open successfully
+   {
+      std::cerr << dir.Data() << std::endl; // Report error
+      std::cerr << "Error code: " << strerror(errno) << std::endl; // Get some info as to why
+      return;
+   }
+   std::cout << " WE ARE AFTER LOADING DATA " << std::endl;
+
+   vector<pair<Double_t, Double_t>> allCoords;
+   Double_t a, b;
+   while (infile >> a >> b) {
+      pair<Double_t, Double_t> coord(a, b);
+      allCoords.push_back(coord);
+   }
+
+   if (allCoords.size() % 3 != 0) {
+      cout << "[ERROR] Bad file" << endl;
+      return;
+   }
+
+   Double_t x[3], y[3];
+   for (Int_t i = 0; i < allCoords.size(); i += 3) {
+      x[0] = allCoords[i + 0].first;
+      y[0] = allCoords[i + 0].second;
+      x[1] = allCoords[i + 1].first;
+      y[1] = allCoords[i + 1].second;
+      x[2] = allCoords[i + 2].first;
+      y[2] = allCoords[i + 2].second;
+
+      det_avg_merge->AddBin(3, x, y);
+      det_err_merge->AddBin(3, x, y);
+
+      for (int l=0; l<NUM_LS; ++l) {
+        det_avg_ls[l].AddBin(3, x, y);
+      }
+   }
+
+   std::cout << " WE ARE AFTER ADDING BINS " << std::endl;
+
+   // -------------------- Simulate particles ------------------------
+   TRandom ran;
+
+   // moving error
+   Double_t xoffset1 = 0;
+   Double_t yoffset1 = 0;
+   Double_t xoffset2 = 0;
+   Double_t yoffset2 = 0;
+
+   for (int i = 0; i <= NUM_LS-1; ++i) { // LumiSection
+     std::cout << "[In Progress] LumiSection " << i << std::endl;
+      for (int j = 0; j < numEvents; ++j) {   // Events
+         Double_t r1 = ran.Gaus(0, 10);
+         Double_t r2 = ran.Gaus(0, 8);
+         Double_t rok = ran.Gaus(10, 1);
+         Double_t rbad1 = ran.Gaus(8, 5);
+         Double_t rbad2 = ran.Gaus(-8, 5);
+
+         Double_t val = rok;
+
+         xoffset1 += 0.00002;
+         yoffset1 += 0.00002;
+
+         xoffset2 += 0.00003;
+         yoffset2 += 0.00004;
+
+         if (r2 > 3. - yoffset1 && r2 < 8. - yoffset1 &&
+             r1 > 1. + xoffset1 && r1 < 5. + xoffset1 ) {
+           val -= rbad1;
+         }
+
+         if (r2 > -10 + yoffset2 && r2 < -8 + yoffset2 &&
+             r1 > -6 + xoffset2 && r1 < 8 + xoffset2 ) {
+           val -= rbad2;
+         }
+
+         tot_avg_ls[i].Fill(r1, r2, val);
+         det_avg_ls[i].Fill(r1, r2, val);
+      }
+
+      std::string title;
+
+
+      c1->cd(i+1);
+      title = "Global View: Avg in LS  " + to_string(i);
+      tot_avg_ls[i].SetTitle(title.c_str());
+      tot_avg_ls[i].SetStats(false);
+      tot_avg_ls[i].Draw("COLZ");
+      c1->Update();
+
+      c1->cd((i+1)+NUM_LS);
+      title = "Detector View: Avg in LS  " + to_string(i);
+      det_avg_ls[i].SetTitle(title.c_str());
+      det_avg_ls[i].SetStats(false);
+      det_avg_ls[i].Draw("COLZ");
+      c1->Update();
+
+
+      c1->cd((i+1)+(NUM_LS*2));
+      title = "Detector View: Error in LS  " + to_string(i);
+      det_avg_ls[i].SetTitle(title.c_str());
+      det_avg_ls[i].SetStats(false);
+      det_avg_ls[i].SetContentToError();
+      det_avg_ls[i].Draw("COLZ");
+      c1->Update();
+   }
+
+   std::vector<TProfile2Poly*> tot_avg_v;
+   std::vector<TProfile2Poly*> det_avg_v;
+   for (Int_t t=0; t<NUM_LS; t++){
+     tot_avg_v.push_back(&tot_avg_ls[t]);
+     det_avg_v.push_back(&det_avg_ls[t]);
+   }
+
+   std::cout << "[In Progress] Merging" << std::endl;
+
+   std::string title;
+
+   tot_merge->Merge(tot_avg_v);
+   c2->cd(1);
+   title = "Total average merge";
+   tot_merge->SetTitle(title.c_str());
+   tot_merge->Draw("COLZ");
+
+   det_avg_merge->Merge(det_avg_v);
+   c2->cd(2);
+   title = "Detector average merge";
+   det_avg_merge->SetTitle(title.c_str());
+   det_avg_merge->SetContentToAverage(); // implicit
+   det_avg_merge->Draw("COLZ");
+
+   det_err_merge->Merge(det_avg_v);
+   c2->cd(3);
+   title = "Detector error merge";
+   det_err_merge->SetTitle(title.c_str());
+   det_err_merge->SetContentToError();
+   det_err_merge->Draw("COLZ");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Simulate faulty detector panel w.r.t. particle charge
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Filip Ilic
+
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+void tprofile2polyRealisticModuleError(Int_t numEvents = 1000000)
+{
+   TCanvas *c1 = new TCanvas("c1", "4 Malfunctioning Panels", 800, 400);
+   c1->Divide(3, 1);
+
+   // -------------------- Construct detector bins ------------------------
+   auto th2p = new TH2Poly();
+   auto avg = new TProfile2Poly();
+   auto err = new TProfile2Poly();
+
+   ifstream infile;
+   TString dir = gROOT->GetTutorialDir();
+   dir.Append("/hist/data/tprofile2poly_tutorial.data");
+   infile.open(dir.Data());
+
+   if (!infile) // Verify that the file was open successfully
+   {
+      std::cerr << dir.Data() << std::endl; // Report error
+      std::cerr << "Error code: " << strerror(errno) << std::endl; // Get some info as to why
+      return;
+   }
+
+   vector<pair<Double_t, Double_t>> allCoords;
+   Double_t a, b;
+   while (infile >> a >> b) {
+      pair<Double_t, Double_t> coord(a, b);
+      allCoords.push_back(coord);
+   }
+
+   if (allCoords.size() % 3 != 0) {
+      cout << "[ERROR] Bad file" << endl;
+      return;
+   }
+
+   Double_t x[3], y[3];
+   for (Int_t i = 0; i < allCoords.size(); i += 3) {
+      x[0] = allCoords[i + 0].first;
+      y[0] = allCoords[i + 0].second;
+      x[1] = allCoords[i + 1].first;
+      y[1] = allCoords[i + 1].second;
+      x[2] = allCoords[i + 2].first;
+      y[2] = allCoords[i + 2].second;
+      th2p->AddBin(3, x, y);
+      avg->AddBin(3, x, y);
+      err->AddBin(3, x, y);
+   }
+
+   // -------------------- Generate particles ------------------------
+   TRandom ran;
+   for (int j = 0; j < numEvents; ++j) {
+      Double_t r1 = ran.Gaus(0, 10);
+      Double_t r2 = ran.Gaus(0, 8);
+      Double_t rok = ran.Gaus(20, 2);
+      Double_t rbad1 = ran.Gaus(1, 2);
+      Double_t rbad2 = ran.Gaus(2, 0);
+
+      Double_t val = rok;
+      // --------------------  Malfunctioning panels -------------------
+      if (th2p->IsInsideBin(4, r1, r2)) val = rok - rbad1;
+      if (th2p->IsInsideBin(20, r1, r2)) val = rok - rbad2;
+      if (th2p->IsInsideBin(13, r1, r2)) val = rok + rbad1;
+      if (th2p->IsInsideBin(37, r1, r2)) val = rok + rbad2;
+
+      // -------------------- Fill histograms ------------------------
+      th2p->Fill(r1, r2, val);
+      avg->Fill(r1, r2, val);
+      err->Fill(r1, r2, val);
+   }
+
+   // -------------------- Display end state ------------------------
+   c1->cd(1);
+   th2p->SetStats(0);
+   th2p->SetTitle("total hits");
+   th2p->Draw("COLZ");
+
+   c1->cd(2);
+   avg->SetStats(0);
+   avg->SetTitle("average charge");
+   avg->Draw("COLZ");
+
+   c1->cd(3);
+   err->SetStats(0);
+   err->SetContentToError();
+   err->SetTitle("error");
+   err->Draw("COLZ");
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example of a canvas showing two histograms with different scales.
+/// The second histogram is drawn in a transparent pad
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+void transpad() {
+   TCanvas *c1 = new TCanvas("c1","transparent pad",200,10,700,500);
+   TPad *pad1 = new TPad("pad1","",0,0,1,1);
+   TPad *pad2 = new TPad("pad2","",0,0,1,1);
+   pad2->SetFillStyle(4000); //will be transparent
+   pad1->Draw();
+   pad1->cd();
+
+   TH1F *h1 = new TH1F("h1","h1",100,-3,3);
+   TH1F *h2 = new TH1F("h2","h2",100,-3,3);
+   TRandom r;
+   for (Int_t i=0;i<100000;i++) {
+      Double_t x1 = r.Gaus(-1,0.5);
+      Double_t x2 = r.Gaus(1,1.5);
+      if (i <1000) h1->Fill(x1);
+      h2->Fill(x2);
+   }
+   h1->Draw();
+   pad1->Update(); //this will force the generation of the "stats" box
+   TPaveStats *ps1 = (TPaveStats*)h1->GetListOfFunctions()->FindObject("stats");
+   ps1->SetX1NDC(0.4); ps1->SetX2NDC(0.6);
+   pad1->Modified();
+   c1->cd();
+
+   //compute the pad range with suitable margins
+   Double_t ymin = 0;
+   Double_t ymax = 2000;
+   Double_t dy = (ymax-ymin)/0.8; //10 per cent margins top and bottom
+   Double_t xmin = -3;
+   Double_t xmax = 3;
+   Double_t dx = (xmax-xmin)/0.8; //10 per cent margins left and right
+   pad2->Range(xmin-0.1*dx,ymin-0.1*dy,xmax+0.1*dx,ymax+0.1*dy);
+   pad2->Draw();
+   pad2->cd();
+   h2->SetLineColor(kRed);
+   h2->Draw("][sames");
+   pad2->Update();
+   TPaveStats *ps2 = (TPaveStats*)h2->GetListOfFunctions()->FindObject("stats");
+   ps2->SetX1NDC(0.65); ps2->SetX2NDC(0.85);
+   ps2->SetTextColor(kRed);
+
+   // draw axis on the right side of the pad
+   TGaxis *axis = new TGaxis(xmax,ymin,xmax,ymax,ymin,ymax,50510,"+L");
+   axis->SetLabelColor(kRed);
+   axis->Draw();
+}
+
+
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example of macro illustrating how to superimpose two histograms
+/// with different scales in the "same" pad.
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Rene Brun
+
+#include "TCanvas.h"
+#include "TStyle.h"
+#include "TH1.h"
+#include "TGaxis.h"
+#include "TRandom.h"
+
+void twoscales()
+{
+   TCanvas *c1 = new TCanvas("c1","hists with different scales",600,400);
+
+   //create/fill draw h1
+   gStyle->SetOptStat(kFALSE);
+   TH1F *h1 = new TH1F("h1","my histogram",100,-3,3);
+   Int_t i;
+   for (i=0;i<10000;i++) h1->Fill(gRandom->Gaus(0,1));
+   h1->Draw();
+   c1->Update();
+
+   //create hint1 filled with the bins integral of h1
+   TH1F *hint1 = new TH1F("hint1","h1 bins integral",100,-3,3);
+   Float_t sum = 0;
+   for (i=1;i<=100;i++) {
+      sum += h1->GetBinContent(i);
+      hint1->SetBinContent(i,sum);
+   }
+
+   //scale hint1 to the pad coordinates
+   Float_t rightmax = 1.1*hint1->GetMaximum();
+   Float_t scale = gPad->GetUymax()/rightmax;
+   hint1->SetLineColor(kRed);
+   hint1->Scale(scale);
+   hint1->Draw("same");
+
+   //draw an axis on the right side
+   TGaxis *axis = new TGaxis(gPad->GetUxmax(),gPad->GetUymin(),
+         gPad->GetUxmax(), gPad->GetUymax(),0,rightmax,510,"+L");
+   axis->SetLineColor(kRed);
+   axis->SetLabelColor(kRed);
+   axis->Draw();
+}
+/// \file
+/// \ingroup tutorial_hist
+/// \notebook
+/// Example showing how to produce a plot with an orthogonal axis system
+/// centered at (0,0).
+///
+/// \macro_image
+/// \macro_code
+///
+/// \author Olivier Couet
+
+void xyplot()
+{
+   TCanvas *c = new TCanvas("c","XY plot",200,10,700,500);
+
+   // Remove the frame
+   c->SetFillColor(kWhite);
+   c->SetFrameLineColor(kWhite);
+   c->SetFrameBorderMode(0);
+
+   // Define and draw a curve the frame
+   const Int_t n = 4;
+   Double_t x[n] = {-1, -3, -9, 3};
+   Double_t y[n] = {-1000,  900,  300, 300};
+   TGraph* gr = new TGraph(n,x,y);
+   gr->SetTitle("XY plot");
+   gr->SetMinimum(-1080);
+   gr->SetMaximum(1080);
+   gr->SetLineColor(kRed);
+   gr->Draw("AC*");
+
+   // Remove the frame's axis
+   gr->GetHistogram()->GetYaxis()->SetTickLength(0);
+   gr->GetHistogram()->GetXaxis()->SetTickLength(0);
+   gr->GetHistogram()->GetYaxis()->SetLabelSize(0);
+   gr->GetHistogram()->GetXaxis()->SetLabelSize(0);
+   gr->GetHistogram()->GetXaxis()->SetAxisColor(0);
+   gr->GetHistogram()->GetYaxis()->SetAxisColor(0);
+
+   gPad->Update();
+
+   // Draw orthogonal axis system centered at (0,0).
+   // Draw the Y axis. Note the 4th label is erased with SetLabelAttributes
+   TGaxis *yaxis = new TGaxis(0, gPad->GetUymin(),
+                              0, gPad->GetUymax(),
+                              gPad->GetUymin(),gPad->GetUymax(),6,"+LN");
+   yaxis->ChangeLabel(4,-1,0.);
+   yaxis->Draw();
+
+   // Draw the Y-axis title.
+   TLatex *ytitle = new TLatex(-0.5,gPad->GetUymax(),"Y axis");
+   ytitle->Draw();
+   ytitle->SetTextSize(0.03);
+   ytitle->SetTextAngle(90.);
+   ytitle->SetTextAlign(31);
+
+   // Draw the X axis
+   TGaxis *xaxis = new TGaxis(gPad->GetUxmin(), 0,
+                              gPad->GetUxmax(), 0,
+                              gPad->GetUxmin(),gPad->GetUxmax(),510,"+L");
+   xaxis->Draw();
+
+   // Draw the X axis title.
+   TLatex *xtitle = new TLatex(gPad->GetUxmax(),-200.,"X axis");
+   xtitle->Draw();
+   xtitle->SetTextAlign(31);
+   xtitle->SetTextSize(0.03);
+}
