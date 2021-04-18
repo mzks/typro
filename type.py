@@ -11,7 +11,6 @@ from multiprocessing import Array, Event, Process, Value
 import numpy as np
 from tqdm import tqdm
 
-
 def main():
 
     parser = argparse.ArgumentParser(description='Stupid typing practice')
@@ -19,6 +18,7 @@ def main():
     parser.add_argument('-p', '--path', default='None', help='Path to training file')
     parser.add_argument('-f', '--file', default='root1.txt', help='Training filename')
     parser.add_argument('-l', '--logfile', default='log.csv', help='Log filename')
+    parser.add_argument('-m', '--logpath', default='None', help='Path to log file')
     parser.add_argument('-u', '--user', default='user', help='User name')
     parser.add_argument('-q', '--quiet', action='store_false', help='Run without log')
     parser.add_argument('-o', '--order', action='store_true', help='Not shuffle the training data')
@@ -29,13 +29,18 @@ def main():
     delta_time_msec = 200
 
     path = args.path
+    logpath = args.logpath
     filename = args.file
     order = args.order
 
     if path == 'None':
         path = os.path.dirname(os.path.abspath(__file__))
+    if logpath == 'None':
+        logpath = path
     if path[-1] != '/':
         path += '/'
+    if logpath[-1] != '/':
+        logpath += '/'
 
     training_filename = path + filename
     if not os.path.exists(training_filename):
@@ -73,12 +78,12 @@ def main():
     #print(mistake_char_list)
 
     if args.quiet:
-        if not os.path.isfile(path + args.logfile):
-            with open(path+args.logfile, mode='a') as f:
+        if not os.path.isfile(logpath + args.logfile):
+            with open(logpath+args.logfile, mode='a') as f:
                 f.write('user,timestamp,time,correct' +\
                 "".join([','+str(i) for i in np.arange(33,127).tolist()])+ '\n') 
                 
-        with open(path+args.logfile, mode='a') as f:
+        with open(logpath+args.logfile, mode='a') as f:
             write_str = user + ',' + str(int(time.time())) + ',' + str(time_msec.value/1000) + ','\
             + str(int(number_correct_types.value))
             mistake_array = np.zeros(94)
