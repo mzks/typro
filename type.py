@@ -174,7 +174,7 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_
                 char_list = []
             else:
                 char_list.append(chr(c))
-                if len(practice_type[index_practice]) <= len(char_list):
+                if len(practice_type[index_practice]) < len(char_list):
                     pass
                 elif char_list[-1] == practice_type[index_practice][len(char_list)-1]:
                     number_correct_types.value += 1
