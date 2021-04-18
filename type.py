@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
-import os, sys
-import random
-import time
 import argparse
-from time import sleep
-from multiprocessing import Process, Pipe, Value, Array, Event
-from tqdm import tqdm
 import curses
+import os
+import random
+import sys
+import time
+from multiprocessing import Array, Event, Process, Value
+
 import numpy as np
+from tqdm import tqdm
+
 
 def main():
 
@@ -38,7 +40,6 @@ def main():
 
     timeout_event = Event()
     time_msec = Value('i', 0)
-
     mistake_char_list_as_int = Array('i', [-1]*1000)
     number_correct_types = Value('i', 0)
 
@@ -69,7 +70,7 @@ def main():
             "".join([','+str(i) for i in np.arange(33,127).tolist()])+ '\n') 
             
     with open(path+args.logfile, mode='a') as f:
-        write_str = user + ',' + str(time.time()) + ',' + str(time_msec.value/1000) + ','\
+        write_str = user + ',' + str(int(time.time())) + ',' + str(time_msec.value/1000) + ','\
         + str(int(number_correct_types.value))
         mistake_array = np.zeros(94)
         for char_int in mistake_char_list_as_int:
@@ -168,7 +169,7 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_
 def timer(timeout_event, timeout_msec, time_msec):
     ut_start = time.time()
     while time_msec.value < timeout_msec and timeout_event.is_set() == False:
-        sleep(0.001) ## wait in sec
+        time.sleep(0.001) ## wait in sec
         time_msec.value = int((time.time() - ut_start) * 1000)
     timeout_event.set()
 
