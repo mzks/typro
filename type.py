@@ -75,12 +75,12 @@ def main():
     if args.quiet:
         if not os.path.isfile(path + args.logfile):
             with open(path+args.logfile, mode='a') as f:
-                f.write('user,timestamp,time,correct' +\
+                f.write('user,timestamp,time,correct,speed' +\
                 "".join([','+str(i) for i in np.arange(33,127).tolist()])+ '\n') 
                 
         with open(path+args.logfile, mode='a') as f:
             write_str = user + ',' + str(int(time.time())) + ',' + str(time_msec.value/1000) + ','\
-            + str(int(number_correct_types.value))
+            + str(int(number_correct_types.value)) + ',' + str(number_correct_types.value/time_msec.value*1000.)
             mistake_array = np.zeros(94)
             for char_int in mistake_char_list_as_int:
                 mistake_array[char_int-33] += 1
