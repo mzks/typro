@@ -21,6 +21,7 @@ def main():
     parser.add_argument('-l', '--logfile', default='log.csv', help='Log filename')
     parser.add_argument('-u', '--user', default='user', help='User name')
     parser.add_argument('-q', '--quiet', action='store_false', help='Run without log')
+    parser.add_argument('-o', '--order', action='store_true', help='Not shuffle the training data')
 
     args = parser.parse_args()
 
@@ -29,6 +30,7 @@ def main():
 
     path = args.path
     filename = args.file
+    order = args.order
 
     if path == 'None':
         path = os.path.dirname(os.path.abspath(__file__))
@@ -48,8 +50,9 @@ def main():
     timer_process = Process(target=timer, args=(timeout_event, timeout_msec, time_msec))
     timer_process.start()
 
-    input_process = Process(target=load_input, args=(timeout_event, timeout_msec, time_msec, delta_time_msec,
-        mistake_char_list_as_int, number_correct_types, training_filename))
+    input_process = Process(target=load_input, 
+            args=(timeout_event, timeout_msec, time_msec, delta_time_msec,
+        mistake_char_list_as_int, number_correct_types, training_filename, order))
     input_process.start()
     input_process.join()
 
@@ -111,7 +114,7 @@ def point_mistake(correct, char_list):
     return mistake_str
 
 
-def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_char_list_as_int, number_correct_types, training_file_name):
+def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_char_list_as_int, number_correct_types, training_file_name, order):
 
     stdscr = curses.initscr()
     curses.noecho()
@@ -123,7 +126,8 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_
 
     with open(training_file_name) as f:
         practice_type = [s.strip() for s in f.readlines() if len(s.strip()) > 0]
-    random.shuffle(practice_type)
+    if not order:
+        random.shuffle(practice_type)
 
 
     index_practice = 0
