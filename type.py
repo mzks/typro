@@ -8,6 +8,7 @@ from time import sleep
 from multiprocessing import Process, Pipe, Value, Array, Event
 from tqdm import tqdm
 import curses
+import numpy as np
 
 def main():
 
@@ -15,6 +16,7 @@ def main():
     parser.add_argument('-t', '--time', default=60, help='Practice time (sec.)', type=int)
     parser.add_argument('-p', '--path', default='None', help='Path to training file')
     parser.add_argument('-f', '--file', default='root1.txt', help='Training filename')
+    parser.add_argument('-l', '--logfile', default='log.csv', help='Log filename')
 
     args = parser.parse_args()
 
@@ -48,11 +50,34 @@ def main():
     input_process.start()
     input_process.join()
 
-    mistake_char_list = [chr(c) for c in mistake_char_list_as_int if c > 0]
+    for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
+        user = os.environ.get(name)
+        if user:
+            break
 
+    mistake_char_list = [chr(c) for c in mistake_char_list_as_int if c > 0]
+    mistake_char_list_as_int = [c for c in mistake_char_list_as_int if c > 0]
+
+    print('User : ' + user)
     print('Correct types : ' + str(number_correct_types.value))
     print('Speed : {:.1f} types/sec'.format(number_correct_types.value/time_msec.value*1000))
-    print('Miss :' + str(len(mistake_char_list)))
+    #print(mistake_char_list)
+
+    if not os.path.isfile(path + args.logfile):
+        with open(path+args.logfile, mode='a') as f:
+            f.write('user,timestamp,time,correct' +\
+            "".join([','+str(i) for i in np.arange(33,127).tolist()])+ '\n') 
+            
+    with open(path+args.logfile, mode='a') as f:
+        write_str = user + ',' + str(time.time()) + ',' + str(time_msec.value/1000) + ','\
+        + str(int(number_correct_types.value))
+        mistake_array = np.zeros(94)
+        for char_int in mistake_char_list_as_int:
+            mistake_array[char_int-33] += 1
+        write_str += "".join([','+str(int(n)) for n in mistake_array]) 
+        write_str += '\n'
+        f.write(write_str)
+                
 
     return 0
 
