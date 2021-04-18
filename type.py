@@ -154,7 +154,7 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_
         if c != -1: # Find key type
             if c == 27: # escape key
                 timeout_event.set()
-            elif c == 263 or c == 8: # Backspace/Ctrl-H
+            elif c == 263 or c == 127 or c == 8: # Backspace/Ctrl-H
                 if len(char_list) > 0:
                     del char_list[-1]
             elif c == 10: # Enter/Return
