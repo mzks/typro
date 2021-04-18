@@ -78,8 +78,8 @@ def main():
     #print(mistake_char_list)
 
     if args.quiet:
-        if not os.path.isfile(path + args.logfile):
-            with open(path+args.logfile, mode='a') as f:
+        if not os.path.isfile(logpath + args.logfile):
+            with open(logpath+args.logfile, mode='a') as f:
                 f.write('user,timestamp,time,correct,speed' +\
                 "".join([','+str(i) for i in np.arange(33,127).tolist()])+ '\n') 
                 
