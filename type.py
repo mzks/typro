@@ -166,6 +166,8 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_
                 if "".join(char_list) == practice_type[index_practice]:
                     index_practice += 1
                     char_list = [] 
+                    if index_practice >= len(practice_type):
+                        timeout_event.set()
             elif c == curses.KEY_RIGHT or c == curses.KEY_LEFT:
                 pass
             elif c == curses.KEY_UP or c == curses.KEY_DOWN:
