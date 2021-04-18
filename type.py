@@ -19,11 +19,13 @@ def main():
     parser.add_argument('-p', '--path', default='None', help='Path to training file')
     parser.add_argument('-f', '--file', default='root1.txt', help='Training filename')
     parser.add_argument('-l', '--logfile', default='log.csv', help='Log filename')
+    parser.add_argument('-u', '--user', default='user', help='User name')
+    parser.add_argument('-q', '--quiet', action='store_false', help='Run without log')
 
     args = parser.parse_args()
 
     timeout_msec = args.time * 1000
-    delta_time_msec = 100
+    delta_time_msec = 200
 
     path = args.path
     filename = args.file
@@ -51,10 +53,13 @@ def main():
     input_process.start()
     input_process.join()
 
-    for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
-        user = os.environ.get(name)
-        if user:
-            break
+    if args.user == 'user':
+        for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
+            user = os.environ.get(name)
+            if user:
+                break
+    else:
+        user = args.user
 
     mistake_char_list = [chr(c) for c in mistake_char_list_as_int if c > 0]
     mistake_char_list_as_int = [c for c in mistake_char_list_as_int if c > 0]
@@ -64,20 +69,21 @@ def main():
     print('Speed : {:.1f} types/sec'.format(number_correct_types.value/time_msec.value*1000))
     #print(mistake_char_list)
 
-    if not os.path.isfile(path + args.logfile):
+    if args.quiet:
+        if not os.path.isfile(path + args.logfile):
+            with open(path+args.logfile, mode='a') as f:
+                f.write('user,timestamp,time,correct' +\
+                "".join([','+str(i) for i in np.arange(33,127).tolist()])+ '\n') 
+                
         with open(path+args.logfile, mode='a') as f:
-            f.write('user,timestamp,time,correct' +\
-            "".join([','+str(i) for i in np.arange(33,127).tolist()])+ '\n') 
-            
-    with open(path+args.logfile, mode='a') as f:
-        write_str = user + ',' + str(int(time.time())) + ',' + str(time_msec.value/1000) + ','\
-        + str(int(number_correct_types.value))
-        mistake_array = np.zeros(94)
-        for char_int in mistake_char_list_as_int:
-            mistake_array[char_int-33] += 1
-        write_str += "".join([','+str(int(n)) for n in mistake_array]) 
-        write_str += '\n'
-        f.write(write_str)
+            write_str = user + ',' + str(int(time.time())) + ',' + str(time_msec.value/1000) + ','\
+            + str(int(number_correct_types.value))
+            mistake_array = np.zeros(94)
+            for char_int in mistake_char_list_as_int:
+                mistake_array[char_int-33] += 1
+            write_str += "".join([','+str(int(n)) for n in mistake_array]) 
+            write_str += '\n'
+            f.write(write_str)
                 
 
     return 0
