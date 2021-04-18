@@ -131,7 +131,6 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_
     window_y_size = stdscr.getmaxyx()[1]
     number_of_mistake = 0
     mistake_char_list = []
-    #number_correct_types = 0
 
     while timeout_event.is_set() == False:
         stdscr.clear()
@@ -141,7 +140,10 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_
         stdscr.addstr(4, 0, point_mistake(practice_type[index_practice], char_list))
         #stdscr.addstr(5, 0, str(number_correct_types.value))
         #stdscr.addstr(6, 0, ''.join(mistake_char_list))
+
         stdscr.refresh()
+        #stdscr.noutrefresh()
+        #curses.doupdate()
 
 
         c = stdscr.getch()
