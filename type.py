@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import collections
 import curses
 import os
 import random
@@ -134,6 +135,9 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_
         practice_type = [s.strip() for s in f.readlines() if len(s.strip()) > 0]
     if not order:
         random.shuffle(practice_type)
+
+    # Remove decoration lines like // --------------------------
+    practice_type = [st for st in practice_type if collections.Counter([s for s in st]).most_common()[0][1] < 15]
 
 
     index_practice = 0
