@@ -112,6 +112,7 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_
     curses.curs_set(0)
     curses.raw()
     curses.cbreak()
+    stdscr.keypad(True)
     stdscr.timeout(int(delta_time_msec)) # ms
 
     with open(training_file_name) as f:
@@ -141,13 +142,19 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_
         if c != -1: # Find key type
             if c == 27: # escape key
                 timeout_event.set()
-            elif c == 127: # Backspace
+            elif c == 263 or c == 8: # Backspace/Ctrl-H
                 if len(char_list) > 0:
                     del char_list[-1]
             elif c == 10: # Enter/Return
                 if "".join(char_list) == practice_type[index_practice]:
                     index_practice += 1
-                    char_list = []
+                    char_list = [] 
+            elif c == curses.KEY_RIGHT or c == curses.KEY_LEFT:
+                pass
+            elif c == curses.KEY_UP or c == curses.KEY_DOWN:
+                pass
+            elif c == 21: # Ctrl-U
+                char_list = []
             else:
                 char_list.append(chr(c))
                 if len(practice_type[index_practice]) <= len(char_list):
@@ -160,6 +167,7 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec, mistake_
                     number_of_mistake += 1
                     mistake_char_list.append(correct_char)
 
+    stdscr.keypad(False)
     curses.curs_set(1)
     curses.nocbreak()
     curses.noecho()
