@@ -204,7 +204,8 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec,
                 timeout_event.set()
             elif c == 263 or c == 127 or c == 8:  # Backspace/Ctrl-H
                 if len(char_list) > 0:
-                    del char_list[-1]
+                    if "".join(char_list) != practice_type[index_practice][:len(char_list)]:
+                        del char_list[-1]
             elif c == 10:  # Enter/Return
                 if "".join(char_list) == practice_type[index_practice]:
                     index_practice += 1
