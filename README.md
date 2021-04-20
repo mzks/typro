@@ -26,13 +26,14 @@ optional arguments:
   -t TIME, --time TIME  Practice time (sec.)
   -p PATH, --path PATH  Path to training file
   -f FILE, --file FILE  Training filename
-  -l LOGFILE, --logfile LOGFILE
-                        Log filename
-  -m LOGPATH, --logpath LOGPATH
-                        Path to log file
+  -l LOGFILE, --logfile LOGFILE Log filename
+  -m LOGPATH, --logpath LOGPATH Path to log file
   -u USER, --user USER  User name
   -q, --quiet           Run without log
   -o, --order           Not shuffle the training data
+  -r, --ranking         Show ranking
+  -s, --summary         Show user summary
+  -d DATE, --date DATE  Date to collect data
 ```
 
 Environment variables are used when you don't specify the options.

@@ -36,6 +36,8 @@ def main():
                         help='Show ranking')
     parser.add_argument('-s', '--summary', action='store_true',
                         help='Show user summary')
+    parser.add_argument('-d', '--date', default=7,
+                        help='Date to collect data', type=int)
 
     args = parser.parse_args()
 
@@ -79,10 +81,10 @@ def main():
         user = args.user
 
     if args.ranking:
-        show_ranking(logpath+args.logfile)
+        show_ranking(logpath+args.logfile, args.date)
         return 0
     if args.summary:
-        show_summary(logpath+args.logfile, user)
+        show_summary(logpath+args.logfile, user, args.date)
         return 0
 
     timeout_event = Event()
@@ -242,7 +244,7 @@ def timer(timeout_event, timeout_msec, time_msec):
     timeout_event.set()
 
 
-def get_df(log_filename):
+def get_df(log_filename, date):
     
     df_origin = pd.read_csv(log_filename)
     char_int = df_origin.columns[6:]
@@ -251,12 +253,14 @@ def get_df(log_filename):
     df.insert(4, 'mistype',  df_origin.iloc[:,6:].sum(axis=1), True)
     df.index = pd.DatetimeIndex(pd.to_datetime(df.timestamp, unit='s',utc=True), name='date').tz_convert('Asia/Tokyo')
     # df = df[df['time'] > args.time]
-    return df
+    current_date = pd.to_datetime(int(time.time()), unit='s', utc=True)
+    current_date = current_date.tz_convert('Asia/Tokyo')
+    return df[df.index>current_date - pd.Timedelta(date, 'days') ]
 
 
-def show_ranking(log_filename):
+def show_ranking(log_filename, date):
     print(log_filename)
-    df = get_df(log_filename)
+    df = get_df(log_filename, date)
     user_speed = {}
     for user in np.unique(df['user']):
         _df = df[df['user'] == user]
@@ -267,8 +271,8 @@ def show_ranking(log_filename):
         print(r[0] + '\t\t' + '{:.1f}'.format(r[1]))
 
 
-def show_summary(log_filename, user):
-    df = get_df(log_filename)
+def show_summary(log_filename, user, date):
+    df = get_df(log_filename, date)
     df = df[df['user'] == user]
     print(user)
     print('Top 10 miss')
