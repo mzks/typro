@@ -10,6 +10,7 @@ import time
 from multiprocessing import Array, Event, Process, Value
 
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 
 
@@ -31,6 +32,8 @@ def main():
                         help='Run without log')
     parser.add_argument('-o', '--order', action='store_true',
                         help='Not shuffle the training data')
+    parser.add_argument('-r', '--result', action='store_true',
+                        help='Show results')
 
     args = parser.parse_args()
 
@@ -59,6 +62,10 @@ def main():
     if not os.path.exists(train_filename):
         print('No such file : ' + train_filename)
         return 1
+
+    if args.result:
+        show_result(logpath+args.logfile, args.user)
+        return 0
 
     timeout_event = Event()
     time_msec = Value('i', 0)
@@ -222,6 +229,33 @@ def timer(timeout_event, timeout_msec, time_msec):
         time.sleep(0.001)  # wait in sec
         time_msec.value = int((time.time() - ut_start) * 1000)
     timeout_event.set()
+
+
+def show_result(log_filename, user):
+    
+    df_origin = pd.read_csv(log_filename)
+    char_int = df_origin.columns[6:]
+    char = [chr(int(i)) for i in char_int]
+    df = df_origin.rename(columns=dict(zip(char_int, char)))
+    df.insert(4, 'mistype',  df_origin.iloc[:,6:].sum(axis=1), True)
+    df.index = pd.DatetimeIndex(pd.to_datetime(df.timestamp, unit='s',utc=True), name='date').tz_convert('Asia/Tokyo')
+
+    # df = df[df['time'] > args.time]
+
+    if user == 'user':  # default
+        user_speed = {}
+        for user in np.unique(df['user']):
+            _df = df[df['user'] == user]
+            user_speed[user] = _df['speed'].max()
+        rank = sorted(user_speed.items(), key = lambda x : x[1], reverse=True)
+        print('user ranking')
+        for r in rank:
+            print(r[0] + '\t\t' + '{:.1f}'.format(r[1]))
+    else:  # specfic user with `-u`
+        df = df[df['user'] == user]
+        print(user)
+        print('Top 10 miss')
+        print(df.sum(axis=0)[7:].sort_values(ascending=False)[:10])
 
 
 if __name__ == "__main__":
