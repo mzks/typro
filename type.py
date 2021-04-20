@@ -21,7 +21,7 @@ def main():
                         help='Practice time (sec.)', type=int)
     parser.add_argument('-p', '--path', default='ENV',
                         help='Path to training file')
-    parser.add_argument('-f', '--file', default='root1.txt',
+    parser.add_argument('-f', '--file', default='default',
                         help='Training filename')
     parser.add_argument('-l', '--logfile', default='log.csv',
                         help='Log filename')
@@ -44,7 +44,11 @@ def main():
 
     path = args.path
     logpath = args.logpath
-    filename = args.file
+    env_file = os.getenv('CONSOLE_TYPE_FILE')
+    if env_file:
+        filename = env_file
+    else:
+        filename = args.file
     order = args.order
 
     if path == 'ENV':
@@ -59,6 +63,7 @@ def main():
         path += '/'
     if logpath[-1] != '/':
         logpath += '/'
+
 
     train_filename = path + filename
     if not os.path.exists(train_filename):
