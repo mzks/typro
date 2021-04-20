@@ -217,7 +217,8 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec,
             elif c == curses.KEY_UP or c == curses.KEY_DOWN:
                 pass
             elif c == 21:  # Ctrl-U
-                char_list = []
+                if "".join(char_list) != practice_type[index_practice][:len(char_list)]:
+                    char_list = []
             else:
                 char_list.append(chr(c))
                 if len(practice_type[index_practice]) < len(char_list):
