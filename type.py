@@ -44,11 +44,11 @@ def main():
 
     if path == 'ENV':
         path = os.getenv('CONSOLE_TYPE_PATH')
-        if path == None
+        if path == None:
             path = os.path.dirname(os.path.abspath(__file__))
     if logpath == 'ENV':
         logpath = os.getenv('CONSOLE_TYPE_LOG_PATH')
-        if logpath == None
+        if logpath == None:
             logpath = path
     if path[-1] != '/':
         path += '/'
