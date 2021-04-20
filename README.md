@@ -34,6 +34,7 @@ optional arguments:
   -q, --quiet           Run without log
   -o, --order           Not shuffle the training data
 ```
+Environment variables, `CONSOLE_TYPE_PATH` and `CONSOLE_TYPE_LOG_PATH` are used for training words dictinally and log file when you don't set them with options.
 
 
 ## Analysis

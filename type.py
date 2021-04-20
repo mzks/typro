@@ -18,13 +18,13 @@ def main():
     parser = argparse.ArgumentParser(description='Stupid typing practice')
     parser.add_argument('-t', '--time', default=60,
                         help='Practice time (sec.)', type=int)
-    parser.add_argument('-p', '--path', default='None',
+    parser.add_argument('-p', '--path', default='ENV',
                         help='Path to training file')
     parser.add_argument('-f', '--file', default='root1.txt',
                         help='Training filename')
     parser.add_argument('-l', '--logfile', default='log.csv',
                         help='Log filename')
-    parser.add_argument('-m', '--logpath', default='None',
+    parser.add_argument('-m', '--logpath', default='ENV',
                         help='Path to log file')
     parser.add_argument('-u', '--user', default='user', help='User name')
     parser.add_argument('-q', '--quiet', action='store_false',
@@ -42,10 +42,14 @@ def main():
     filename = args.file
     order = args.order
 
-    if path == 'None':
-        path = os.path.dirname(os.path.abspath(__file__))
-    if logpath == 'None':
-        logpath = path
+    if path == 'ENV':
+        path = os.getenv('CONSOLE_TYPE_PATH')
+        if path == None
+            path = os.path.dirname(os.path.abspath(__file__))
+    if logpath == 'ENV':
+        logpath = os.getenv('CONSOLE_TYPE_LOG_PATH')
+        if logpath == None
+            logpath = path
     if path[-1] != '/':
         path += '/'
     if logpath[-1] != '/':
