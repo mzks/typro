@@ -112,7 +112,7 @@ def main():
     print('Speed : ' +
           '{:.1f} types/sec'.format(n_correct.value/time_msec.value*1000))
 
-    if args.quiet:
+    if args.quiet and n_correct.value:
         if not os.path.isfile(logpath + args.logfile):
             with open(logpath+args.logfile, mode='a') as f:
                 f.write('user,timestamp,time,correct,speed,file' +
