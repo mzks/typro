@@ -49,11 +49,11 @@ def main():
 
     if path == 'ENV':
         path = os.getenv('CONSOLE_TYPE_PATH')
-        if path == None:
+        if path is None:
             path = os.path.dirname(os.path.abspath(__file__))
     if logpath == 'ENV':
         logpath = os.getenv('CONSOLE_TYPE_LOG_PATH')
-        if logpath == None:
+        if logpath is None:
             logpath = path
     if path[-1] != '/':
         path += '/'
@@ -261,8 +261,8 @@ def show_ranking(log_filename):
     for r in rank:
         print(r[0] + '\t\t' + '{:.1f}'.format(r[1]))
 
-def show_summary(log_filename, user):
 
+def show_summary(log_filename, user):
     df = get_df(log_filename)
     df = df[df['user'] == user]
     print(user)
