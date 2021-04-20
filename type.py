@@ -32,8 +32,10 @@ def main():
                         help='Run without log')
     parser.add_argument('-o', '--order', action='store_true',
                         help='Not shuffle the training data')
-    parser.add_argument('-r', '--result', action='store_true',
-                        help='Show results')
+    parser.add_argument('-r', '--ranking', action='store_true',
+                        help='Show ranking')
+    parser.add_argument('-s', '--summary', action='store_true',
+                        help='Show user summary')
 
     args = parser.parse_args()
 
@@ -63,8 +65,19 @@ def main():
         print('No such file : ' + train_filename)
         return 1
 
-    if args.result:
-        show_result(logpath+args.logfile, args.user)
+    if args.user == 'user':
+        for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
+            user = os.environ.get(name)
+            if user:
+                break
+    else:
+        user = args.user
+
+    if args.ranking:
+        show_ranking(logpath+args.logfile)
+        return 0
+    if args.summary:
+        show_summary(logpath+args.logfile, user)
         return 0
 
     timeout_event = Event()
@@ -83,13 +96,6 @@ def main():
     input_process.start()
     input_process.join()
 
-    if args.user == 'user':
-        for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
-            user = os.environ.get(name)
-            if user:
-                break
-    else:
-        user = args.user
 
     mistake_char_list = [chr(c) for c in mistake_char_list_as_int if c > 0]
     mistake_char_list_as_int = [c for c in mistake_char_list_as_int if c > 0]
@@ -231,7 +237,7 @@ def timer(timeout_event, timeout_msec, time_msec):
     timeout_event.set()
 
 
-def show_result(log_filename, user):
+def get_df(log_filename):
     
     df_origin = pd.read_csv(log_filename)
     char_int = df_origin.columns[6:]
@@ -239,23 +245,29 @@ def show_result(log_filename, user):
     df = df_origin.rename(columns=dict(zip(char_int, char)))
     df.insert(4, 'mistype',  df_origin.iloc[:,6:].sum(axis=1), True)
     df.index = pd.DatetimeIndex(pd.to_datetime(df.timestamp, unit='s',utc=True), name='date').tz_convert('Asia/Tokyo')
-
     # df = df[df['time'] > args.time]
+    return df
 
-    if user == 'user':  # default
-        user_speed = {}
-        for user in np.unique(df['user']):
-            _df = df[df['user'] == user]
-            user_speed[user] = _df['speed'].max()
-        rank = sorted(user_speed.items(), key = lambda x : x[1], reverse=True)
-        print('user ranking')
-        for r in rank:
-            print(r[0] + '\t\t' + '{:.1f}'.format(r[1]))
-    else:  # specfic user with `-u`
-        df = df[df['user'] == user]
-        print(user)
-        print('Top 10 miss')
-        print(df.sum(axis=0)[7:].sort_values(ascending=False)[:10])
+
+def show_ranking(log_filename):
+    print(log_filename)
+    df = get_df(log_filename)
+    user_speed = {}
+    for user in np.unique(df['user']):
+        _df = df[df['user'] == user]
+        user_speed[user] = _df['speed'].max()
+    rank = sorted(user_speed.items(), key = lambda x : x[1], reverse=True)
+    print('user ranking')
+    for r in rank:
+        print(r[0] + '\t\t' + '{:.1f}'.format(r[1]))
+
+def show_summary(log_filename, user):
+
+    df = get_df(log_filename)
+    df = df[df['user'] == user]
+    print(user)
+    print('Top 10 miss')
+    print(df.sum(axis=0)[7:].sort_values(ascending=False)[:10])
 
 
 if __name__ == "__main__":
