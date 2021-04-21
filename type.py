@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Stupid typing practice')
+    parser = argparse.ArgumentParser(description='Typing game on console')
     parser.add_argument('-t', '--time', default=60,
                         help='Practice time (sec.)', type=int)
     parser.add_argument('-p', '--path', default='ENV',
@@ -46,7 +46,7 @@ def main():
 
     path = args.path
     logpath = args.logpath
-    env_file = os.getenv('CONSOLE_TYPE_FILE')
+    env_file = os.getenv('TYPRO_FILE')
     if args.file != 'default':
         filename = args.file
     elif env_file:
@@ -56,11 +56,11 @@ def main():
     order = args.order
 
     if path == 'ENV':
-        path = os.getenv('CONSOLE_TYPE_PATH')
+        path = os.getenv('TYPRO_PATH')
         if path is None:
             path = os.path.dirname(os.path.abspath(__file__))
     if logpath == 'ENV':
-        logpath = os.getenv('CONSOLE_TYPE_LOG_PATH')
+        logpath = os.getenv('TYPRO_LOG_PATH')
         if logpath is None:
             logpath = path
     if path[-1] != '/':

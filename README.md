@@ -1,5 +1,5 @@
-# typing
-Stupid typing game on console
+# typro
+Typing game on console
 
 ## Usage
 Execute `type.py` on your console.
@@ -39,9 +39,9 @@ optional arguments:
 Environment variables are used when you don't specify the options.
 | Environment varibale    | option |
 | ------------------------| -------|
-| `CONSOLE_TYPE_FILE`     | -f     |
-| `CONSOLE_TYPE_PATH`     | -l     |
-| `CONSOLE_TYPE_LOG_PATH` | -m     |
+| `TYPRO_FILE`            | -f     |
+| `TYPRO_PATH`            | -l     |
+| `TYPRO_LOG_PATH`        | -m     |
 
 
 ## Analysis
