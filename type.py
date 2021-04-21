@@ -66,12 +66,6 @@ def main():
     if logpath[-1] != '/':
         logpath += '/'
 
-
-    train_filename = path + filename
-    if not os.path.exists(train_filename):
-        print('No such file : ' + train_filename)
-        return 1
-
     if args.user == 'user':
         for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
             user = os.environ.get(name)
@@ -86,6 +80,11 @@ def main():
     if args.summary:
         show_summary(logpath+args.logfile, user, args.date)
         return 0
+
+    train_filename = path + filename
+    if not os.path.exists(train_filename):
+        print('No such file : ' + train_filename)
+        return 1
 
     timeout_event = Event()
     time_msec = Value('i', 0)
@@ -224,7 +223,8 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec,
                 if len(practice_type[index_practice]) < len(char_list):
                     pass
                 elif char_list[-1] == practice_type[index_practice][len(char_list)-1]:
-                    n_correct.value += 1
+                    if "".join(char_list) == practice_type[index_practice][:len(char_list)]:
+                        n_correct.value += 1
                 else:
                     correct_char = practice_type[index_practice][len(char_list)-1]
                     mistake_char_list_as_int[number_of_mistake] = ord(correct_char)
