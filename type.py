@@ -47,7 +47,9 @@ def main():
     path = args.path
     logpath = args.logpath
     env_file = os.getenv('CONSOLE_TYPE_FILE')
-    if env_file:
+    if args.file != 'default':
+        filename = args.file
+    elif env_file:
         filename = env_file
     else:
         filename = args.file
