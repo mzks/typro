@@ -11,7 +11,6 @@ from multiprocessing import Array, Event, Process, Value
 
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 
 
 def main():
