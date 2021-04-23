@@ -18,7 +18,7 @@ except IOError:
 
 setup(
     name="typro",
-    version="0.0.5",
+    version=version,
     url='https://github.com/mzks/typro',
     author='Keita Mizukoshi',
     author_email='mzks@stu.kobe-u.ac.jp',
