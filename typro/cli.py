@@ -261,7 +261,7 @@ def make_trainings(args):
         path = env_path
     else: # Priority 3 : Use package data
         path = 'data'
-        use_user_file = True
+        use_user_file = False
 
     if not args.file is 'None':
         filename = args.file
@@ -276,7 +276,7 @@ def make_trainings(args):
         train_filename = path + filename
         if not os.path.exists(train_filename):
             print('No such file : ' + train_filename)
-            return 1
+            sys.exit()
         with open(train_filename) as f:
             training_list = [s.strip() for s in f.readlines() if len(s.strip()) > 0]
     else:
