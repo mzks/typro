@@ -257,18 +257,25 @@ def make_trainings(args):
     use_user_file = True
     if not args.path is 'None': # Priority 1 : Use option
         path = args.path
+        print('use option')
     elif not env_path is None: # Priority 2 : Use environment variable
         path = env_path
+        print('use env')
     else: # Priority 3 : Use package data
         path = 'data'
-        use_user_file = True
+        use_user_file = False
+        print('use package data')
 
     if not args.file is 'None':
         filename = args.file
+        print('a')
     elif not env_file is None:
         filename = env_file
+        print('b')
     else:
         filename = 'default'
+        print('c')
+    print(filename)
 
     if use_user_file:
         if path[-1] != '/':
@@ -276,13 +283,14 @@ def make_trainings(args):
         train_filename = path + filename
         if not os.path.exists(train_filename):
             print('No such file : ' + train_filename)
-            return 1
+            sys.exit()
         with open(train_filename) as f:
             training_list = [s.strip() for s in f.readlines() if len(s.strip()) > 0]
     else:
         # package file
         st = pkg_resources.resource_string('typro', 'data/' + filename).decode('utf-8')
         training_list = st.split('\n')
+        training_list = [s.strip() for s in training_list if len(s) > 0]
 
     if not args.order:
         random.shuffle(training_list)
