@@ -1,8 +1,11 @@
 # typro
-Typing game on console
+Typing practice game on console for professional
 
-## Usage
-Execute `type.py` on your console.
+## Install and Usage
+```
+pip install git+https://github.com/mzks/typro
+```
+Execute `typro` on your console.
 The game starts immidiately.
 The display of the game like
 ```
@@ -29,7 +32,7 @@ optional arguments:
   -l LOGFILE, --logfile LOGFILE Log filename
   -m LOGPATH, --logpath LOGPATH Path to log file
   -u USER, --user USER  User name
-  -q, --quiet           Run without log
+  -q, --quiet           Run without writing log
   -o, --order           Not shuffle the training data
   -r, --ranking         Show ranking
   -s, --summary         Show user summary
@@ -44,8 +47,40 @@ Environment variables are used when you don't specify the options.
 | `TYPRO_LOG_PATH`        | -m     |
 
 
+## Available training files
+
+| Name    | description                           |
+| ------- | ------------------------------------- |
+| default | C++ simple code (used as default)     |
+| root    | ROOT (cern) hist examples             |
+
+The `-f` option switch the file like `typro -f root`.
+If you want to use your own file, (1) use option (`-p` and `-f`) or (2) use environment variables.
+
+
+## Examples
+#### training with root code without shuffle
+```
+typro -f root -o
+```
+
+#### training with your code
+```
+typro -p /path/to/your/file -f your_file
+```
+
+#### show your weak keys
+```
+typro -s
+```
+
+#### show user ranking in the privious 3 days
+```
+typro -r -d 3
+```
+
+
 ## Analysis
-As a default, the typing game generates output log in `LOGFILE`.
+As a default, the typing game generates output log in `LOGFILE` (default: `typro_results.csv`)
 The format is csv, pandas friendlly style.
-The example of the loader is `read_log.py`
 The numeric indexes mean the ASCII code of key which you mistouched.
