@@ -7,6 +7,7 @@ import os
 import random
 import sys
 import time
+import pkg_resources
 from multiprocessing import Array, Event, Process, Value
 
 import numpy as np
@@ -18,13 +19,13 @@ def main():
     parser = argparse.ArgumentParser(description='Typing game on console')
     parser.add_argument('-t', '--time', default=60,
                         help='Practice time (sec.)', type=int)
-    parser.add_argument('-p', '--path', default='ENV',
+    parser.add_argument('-p', '--path', default='None',
                         help='Path to training file')
-    parser.add_argument('-f', '--file', default='default',
+    parser.add_argument('-f', '--file', default='None',
                         help='Training filename')
-    parser.add_argument('-l', '--logfile', default='log.csv',
+    parser.add_argument('-l', '--logfile', default='typro_results.csv',
                         help='Log filename')
-    parser.add_argument('-m', '--logpath', default='ENV',
+    parser.add_argument('-m', '--logpath', default='None',
                         help='Path to log file')
     parser.add_argument('-u', '--user', default='user', help='User name')
     parser.add_argument('-q', '--quiet', action='store_false',
@@ -39,33 +40,10 @@ def main():
                         help='Date to collect data', type=int)
 
     args = parser.parse_args()
+    training_list, path, filename, logpathfile = make_trainings(args)
 
     timeout_msec = args.time * 1000
     delta_time_msec = 200
-
-    path = args.path
-    logpath = args.logpath
-    env_file = os.getenv('TYPRO_FILE')
-    if args.file != 'default':
-        filename = args.file
-    elif env_file:
-        filename = env_file
-    else:
-        filename = args.file
-    order = args.order
-
-    if path == 'ENV':
-        path = os.getenv('TYPRO_PATH')
-        if path is None:
-            path = os.path.dirname(os.path.abspath(__file__))
-    if logpath == 'ENV':
-        logpath = os.getenv('TYPRO_LOG_PATH')
-        if logpath is None:
-            logpath = path
-    if path[-1] != '/':
-        path += '/'
-    if logpath[-1] != '/':
-        logpath += '/'
 
     if args.user == 'user':
         for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
@@ -76,17 +54,13 @@ def main():
         user = args.user
 
     if args.ranking:
-        show_ranking(logpath+args.logfile, args.date)
+        show_ranking(logpathfile, args.date)
         return 0
     if args.summary:
-        show_summary(logpath+args.logfile, user, args.date)
+        show_summary(logpathfile, user, args.date)
         return 0
 
-    train_filename = path + filename
-    if not os.path.exists(train_filename):
-        print('No such file : ' + train_filename)
-        return 1
-
+        
     timeout_event = Event()
     time_msec = Value('i', 0)
     mistake_char_list_as_int = Array('i', [-1]*1000)
@@ -99,7 +73,7 @@ def main():
     input_process = Process(target=load_input,
                             args=(timeout_event, timeout_msec, time_msec,
                                   delta_time_msec, mistake_char_list_as_int,
-                                  n_correct, train_filename, order))
+                                  n_correct, training_list))
     input_process.start()
     input_process.join()
 
@@ -113,14 +87,14 @@ def main():
           '{:.1f} types/sec'.format(n_correct.value/time_msec.value*1000))
 
     if args.quiet and n_correct.value:
-        if not os.path.isfile(logpath + args.logfile):
-            with open(logpath+args.logfile, mode='a') as f:
+        if not os.path.isfile(logpathfile):
+            with open(logpathfile, mode='a') as f:
                 f.write('user,timestamp,time,correct,speed,file' +
                         "".join([','+str(i) for i
                                 in np.arange(33, 127).tolist()])
                         + '\n')
 
-        with open(logpath+args.logfile, mode='a') as f:
+        with open(logpathfile, mode='a') as f:
             write_str = user + ',' + str(int(time.time()))\
                         + ',' + str(time_msec.value/1000) + ','\
                         + str(int(n_correct.value)) + ','\
@@ -160,7 +134,7 @@ def point_mistake(correct, char_list):
 
 
 def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec,
-               mistake_char_list_as_int, n_correct, training_file_name, order):
+               mistake_char_list_as_int, n_correct, training_list):
 
     stdscr = curses.initscr()
     curses.noecho()
@@ -170,14 +144,7 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec,
     stdscr.keypad(True)
     stdscr.timeout(int(delta_time_msec))
 
-    with open(training_file_name) as f:
-        practice_type = [s.strip() for s in f.readlines() if len(s.strip()) > 0]
-    if not order:
-        random.shuffle(practice_type)
-
-    # Remove decoration lines like // --------------------------
-    practice_type = [st for st in practice_type
-                     if collections.Counter([s for s in st]).most_common()[0][1] < 15]
+    practice_type = training_list
 
     index_practice = 0
     char_list = []
@@ -280,6 +247,61 @@ def show_summary(log_filename, user, date):
     print(user)
     print('Top 10 miss')
     print(df.sum(axis=0)[7:].sort_values(ascending=False)[:10])
+
+
+def make_trainings(args):
+
+    # File
+    env_path = os.getenv('TYPRO_PATH')
+    env_file = os.getenv('TYPRO_FILE')
+    use_user_file = True
+    if not args.path is 'None': # Priority 1 : Use option
+        path = args.path
+    elif not env_path is None: # Priority 2 : Use environment variable
+        path = env_path
+    else: # Priority 3 : Use package data
+        path = 'data'
+        use_user_file = True
+
+    if not args.file is 'None':
+        filename = args.file
+    elif not env_file is None:
+        filename = env_file
+    else:
+        filename = 'default'
+
+    if use_user_file:
+        if path[-1] != '/':
+            path += '/'
+        train_filename = path + filename
+        if not os.path.exists(train_filename):
+            print('No such file : ' + train_filename)
+            return 1
+        with open(train_filename) as f:
+            training_list = [s.strip() for s in f.readlines() if len(s.strip()) > 0]
+    else:
+        # package file
+        st = pkg_resources.resource_string('typro', 'data/' + filename).decode('utf-8')
+        training_list = st.split('\n')
+
+    if not args.order:
+        random.shuffle(training_list)
+    # Remove decoration lines like // --------------------------
+    training_list = [st for st in training_list
+                     if collections.Counter([s for s in st]).most_common()[0][1] < 15]
+
+    # Log file
+    logpath = os.getenv('TYPRO_LOG_PATH')
+    if not args.logpath is 'None':
+        logpath = args.logpath
+    elif logpath is None:
+        logpath = os.getenv('HOME')
+    if logpath[-1] != '/':
+        logpath += '/'
+    logpathfile = logpath + args.logfile
+
+    return training_list, path, filename, logpathfile
+
 
 
 if __name__ == "__main__":
