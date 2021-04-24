@@ -257,24 +257,18 @@ def make_trainings(args):
     use_user_file = True
     if not args.path is 'None': # Priority 1 : Use option
         path = args.path
-        print('use option')
     elif not env_path is None: # Priority 2 : Use environment variable
         path = env_path
-        print('use env')
     else: # Priority 3 : Use package data
         path = 'data'
         use_user_file = False
-        print('use package data')
 
     if not args.file is 'None':
         filename = args.file
-        print('a')
     elif not env_file is None:
         filename = env_file
-        print('b')
     else:
         filename = 'default'
-        print('c')
     print(filename)
 
     if use_user_file:
@@ -292,11 +286,12 @@ def make_trainings(args):
         training_list = st.split('\n')
         training_list = [s.strip() for s in training_list if len(s) > 0]
 
+
     if not args.order:
         random.shuffle(training_list)
     # Remove decoration lines like // --------------------------
-    training_list = [st for st in training_list
-                     if collections.Counter([s for s in st]).most_common()[0][1] < 15]
+#    training_list = [st for st in training_list
+#                     if collections.Counter([s for s in st]).most_common()[0][1] < 15]
 
     # Log file
     logpath = os.getenv('TYPRO_LOG_PATH')
