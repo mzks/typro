@@ -3,7 +3,7 @@ Typing practice game on console for professional
 
 ## Install and Usage
 ```
-pip install git+https://github.com/mzks/typro
+pip install typro
 ```
 Execute `typro` on your console.
 The game starts immidiately.
