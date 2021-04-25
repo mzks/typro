@@ -86,6 +86,14 @@ typro -s
 typro -r -d 3
 ```
 
+## I'm welcome for your contributions!
+
+For example,
+ - Add training file to `data`.
+ - Enhance training modes (infinitity mode, etc.)
+
+Please freely submit your contribution for GitHub pull request.
+
 
 ## Analysis
 As a default, the typing game generates output log in `LOGFILE` (default: `typro_results.csv`)
