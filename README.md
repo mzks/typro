@@ -1,6 +1,7 @@
 # typro
 Typing practice game on console for professional
 
+[![Version](https://img.shields.io/github/v/tag/mzks/typro)
 [![Downloads](https://static.pepy.tech/personalized-badge/typro?period=total&units=international_system&left_color=grey&right_color=blue&left_text=Downloads)](https://pepy.tech/project/typro)
 
 ## Install and Usage
