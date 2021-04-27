@@ -5,6 +5,9 @@ Typing practice game on console for professional
 [![Downloads](https://static.pepy.tech/personalized-badge/typro?period=total&units=international_system&left_color=grey&right_color=blue&left_text=Downloads)](https://pepy.tech/project/typro)
 ![Licence](https://img.shields.io/github/license/mzks/typro)
 
+![typro](https://user-images.githubusercontent.com/12980386/116286769-9336b300-a7ca-11eb-9c6f-657106fda976.gif)
+
+
 ## Install and Usage
 ```
 pip install typro
