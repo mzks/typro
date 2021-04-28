@@ -1,0 +1,30 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy
+import pandas as pd
+import seaborn as sns
+from tqdm import tqdm
+
+def main():
+    data = np.load('data.npy')
+    print(data.dtype)
+    df = pd.read_csv('data.csv')
+    plt.plot(df['time'])
+
+    wf = data['wf']
+    baseline = wf[0:100,:].mean(axis=1)
+    _wf = np.expand_dims(baseline, 1) - wf
+    plt.plot(wf[0:10,:].T)
+
+    plt.hist(data['area'], bins=100, histtype='step')
+    plt.xlabel('Area')
+    plt.ylabel('Counts/bin')
+    plt.legend()
+    plt.yscale('log')
+
+    return 0
+
+
+if __name__ == '__main__':
+    main()
+
