@@ -38,9 +38,16 @@ def main():
                         help='Show user summary')
     parser.add_argument('-d', '--date', default=7,
                         help='Date to collect data', type=int)
+    parser.add_argument('-i', '--list', action='store_true',
+                        help='Display lists of training file included')
 
     args = parser.parse_args()
     training_list, path, filename, logpathfile = make_trainings(args)
+
+    if args.list:
+        print('Predefined training file (e.g., typro -f cmd)')
+        print(pkg_resources.resource_listdir('typro', 'data'))
+        return 0
 
     timeout_msec = args.time * 1000
     delta_time_msec = 200
@@ -269,7 +276,6 @@ def make_trainings(args):
         filename = env_file
     else:
         filename = 'default'
-    print(filename)
 
     if use_user_file:
         if path[-1] != '/':
