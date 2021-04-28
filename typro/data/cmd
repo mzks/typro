@@ -1,0 +1,30 @@
+ls : list directory contents
+man : display the on-line manual pages
+pwd : output the current working directory
+cd : change directory
+less : display file content
+cat : concatenate and print files
+make : make utility to maintain groups of programs
+ps : process status
+rm : remove file or directory
+cp : copy files
+mv : move (rename) a file
+mkdir : make directories
+chmod : change file modes or access control lists
+chown : change file owner and group
+grep : file pattern searcher
+ssh : secure shell client (remote login program)
+kill : terminate a process
+exit : exit the shell
+head : display first lines of a file
+tail : display the last part of a file
+wc : word, line, character, and byte count
+diff : compare files line by line
+echo : display a line of text
+history : show and manipulate command history
+jobs : print currently running jobs
+df : display free disk space
+du : display disk usage statistics
+tar : manipulate tape!? archives
+which : locate a program file in the user's path
+date : display or set date and time

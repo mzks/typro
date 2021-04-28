@@ -62,6 +62,8 @@ Environment variables are used when you don't specify the options.
 | Name    | description                           |
 | ------- | ------------------------------------- |
 | default | C++ simple code (used as default)     |
+| cmd     | Basic unix command and descriptions   |
+| pyplot  | Simple plotting with python           |
 | root    | ROOT (cern) hist examples             |
 
 The `-f` option switch the file like `typro -f root`.
