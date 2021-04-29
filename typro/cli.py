@@ -166,9 +166,19 @@ def load_input(start_event, timeout_event, timeout_msec,
     mistake_char_list = []
 
     stdscr.clear()
-    stdscr.addstr(0, 0, 'Press any key to start')
-    stdscr.addstr(1, 0, 'Press Escape to quit')
-    stdscr.addstr(2, 0, 'Training time ' + str(timeout_msec/1000) + 'sec.')
+    sp0 = " _                         "
+    sp1 = "| |_ _   _ _ __  _ __ ___  "
+    sp2 = "| __| | | | '_ \| '__/ _ \ "
+    sp3 = "| |_| |_| | |_) | | | (_) |"
+    sp4 = " \__|\__, | .__/|_|  \___/ "
+    sp5 = "     |___/|_|              "
+    stdscr.addstr(0, 0, sp0)
+    stdscr.addstr(1, 0, sp1)
+    stdscr.addstr(2, 0, sp2 + ' Press any keys to start')
+    stdscr.addstr(3, 0, sp3 + 
+                  ' Training time {:.0f} sec.'.format(timeout_msec/1000))
+    stdscr.addstr(4, 0, sp4)
+    stdscr.addstr(5, 0, sp5)
     stdscr.refresh()
     c = stdscr.getch()
     if c == 27:  # escape key
