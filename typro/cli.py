@@ -251,15 +251,26 @@ def timer(start_event, timeout_event, timeout_msec, time_msec):
     timeout_event.set()
 
 
-def get_df(log_filename, date):
+def get_df(log_filename=None, date=0):
+
+    if log_filename is None:
+        logpath = os.getenv('TYPRO_LOG_PATH')
+        if logpath is None:
+            logpath = os.getenv('HOME')
+        if logpath[-1] != '/':
+            logpath += '/'
+        log_filename = logpath + 'typro_results.csv'
     
     df_origin = pd.read_csv(log_filename)
     char_int = df_origin.columns[6:]
     char = [chr(int(i)) for i in char_int]
     df = df_origin.rename(columns=dict(zip(char_int, char)))
     df.insert(4, 'mistype',  df_origin.iloc[:,6:].sum(axis=1), True)
-    df.index = pd.DatetimeIndex(pd.to_datetime(df.timestamp, unit='s',utc=True), name='date').tz_convert('Asia/Tokyo')
+    df.index = pd.DatetimeIndex(pd.to_datetime(df.timestamp, unit='s',utc=True),
+                                name='date').tz_convert('Asia/Tokyo')
     # df = df[df['time'] > args.time]
+    if date == 0:
+        date = 10000  # huge value
     current_date = pd.to_datetime(int(time.time()), unit='s', utc=True)
     current_date = current_date.tz_convert('Asia/Tokyo')
     return df[df.index>current_date - pd.Timedelta(date, 'days') ]
