@@ -318,6 +318,11 @@ def make_trainings(args):
             training_list = [s.strip() for s in f.readlines() if len(s.strip()) > 0]
     else:
         # package file
+        training_files = pkg_resources.resource_listdir('typro', 'data')
+        if not filename in training_files:
+            print('No such training file included. Use')
+            print(training_files)
+            sys.exit()
         st = pkg_resources.resource_string('typro', 'data/' + filename).decode('utf-8')
         training_list = st.split('\n')
         training_list = [s.strip() for s in training_list if len(s) > 0]
