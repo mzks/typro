@@ -13,7 +13,6 @@ Typing practice game on console for professional
 pip install typro
 ```
 Execute `typro` on your console.
-The game starts immidiately.
 The display of the game like
 ```
 [#################                  ] 30.0/60 sec.
@@ -66,12 +65,12 @@ Environment variables are used when you don't specify the options.
 | pyplot  | Simple plotting with python           |
 | root    | ROOT (cern) hist examples             |
 
-The `-f` option switch the file like `typro -f root`.
+The `-f` option switch the file like `typro -f cmd`.
 If you want to use your own file, (1) use option (`-p` and `-f`) or (2) use environment variables.
 
 
 ## Examples
-#### training with root code without shuffle
+#### training with ROOT code without shuffle
 ```
 typro -f root -o
 ```

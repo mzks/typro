@@ -68,18 +68,22 @@ def main():
         return 0
 
         
+    start_event = Event()
     timeout_event = Event()
     time_msec = Value('i', 0)
     mistake_char_list_as_int = Array('i', [-1]*1000)
     n_correct = Value('i', 0)
 
     timer_process = Process(target=timer,
-                            args=(timeout_event, timeout_msec, time_msec))
+                            args=(start_event, timeout_event,
+                                  timeout_msec, time_msec))
     timer_process.start()
 
     input_process = Process(target=load_input,
-                            args=(timeout_event, timeout_msec, time_msec,
-                                  delta_time_msec, mistake_char_list_as_int,
+                            args=(start_event, timeout_event,
+                                  timeout_msec, time_msec,
+                                  delta_time_msec, 
+                                  mistake_char_list_as_int,
                                   n_correct, training_list))
     input_process.start()
     input_process.join()
@@ -88,9 +92,10 @@ def main():
     mistake_char_list = [chr(c) for c in mistake_char_list_as_int if c > 0]
     mistake_char_list_as_int = [c for c in mistake_char_list_as_int if c > 0]
 
-    print('User : ' + user)
-    print('Correct types : ' + str(n_correct.value))
-    print('Speed : ' +
+    if time_msec.value > 0:
+        print('User : ' + user)
+        print('Correct types : ' + str(n_correct.value))
+        print('Speed : ' +
           '{:.1f} types/sec'.format(n_correct.value/time_msec.value*1000))
 
     if args.quiet and n_correct.value:
@@ -140,7 +145,8 @@ def point_mistake(correct, char_list):
     return mistake_str
 
 
-def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec,
+def load_input(start_event, timeout_event, timeout_msec, 
+               time_msec, delta_time_msec,
                mistake_char_list_as_int, n_correct, training_list):
 
     stdscr = curses.initscr()
@@ -149,7 +155,7 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec,
     curses.raw()
     curses.cbreak()
     stdscr.keypad(True)
-    stdscr.timeout(int(delta_time_msec))
+    stdscr.timeout(-1)
 
     practice_type = training_list
 
@@ -158,6 +164,18 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec,
     window_y_size = stdscr.getmaxyx()[1]
     number_of_mistake = 0
     mistake_char_list = []
+
+    stdscr.clear()
+    stdscr.addstr(0, 0, 'Press any key to start')
+    stdscr.addstr(1, 0, 'Press Escape to quit')
+    stdscr.addstr(2, 0, 'Training time ' + str(timeout_msec/1000) + 'sec.')
+    stdscr.refresh()
+    c = stdscr.getch()
+    if c == 27:  # escape key
+        timeout_event.set()
+    start_event.set()
+
+    stdscr.timeout(int(delta_time_msec))
 
     while not timeout_event.is_set():
         stdscr.clear()
@@ -213,7 +231,9 @@ def load_input(timeout_event, timeout_msec, time_msec, delta_time_msec,
     curses.endwin()
 
 
-def timer(timeout_event, timeout_msec, time_msec):
+def timer(start_event, timeout_event, timeout_msec, time_msec):
+    while not start_event.is_set():
+        time.sleep(0.001)
     ut_start = time.time()
     while time_msec.value < timeout_msec and not timeout_event.is_set():
         time.sleep(0.001)  # wait in sec
