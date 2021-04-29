@@ -181,7 +181,7 @@ def load_input(start_event, timeout_event, timeout_msec,
     stdscr.addstr(5, 0, sp5)
     stdscr.refresh()
     c = stdscr.getch()
-    if c == 27:  # escape key
+    if c == 27 or c == 113:  # escape key or q
         timeout_event.set()
     start_event.set()
 
