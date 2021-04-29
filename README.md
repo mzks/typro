@@ -64,6 +64,7 @@ Environment variables are used when you don't specify the options.
 | cmd     | Basic unix command and descriptions   |
 | pyplot  | Simple plotting with python           |
 | root    | ROOT (cern) hist examples             |
+| fortune | Random short fortune                  |
 
 The `-f` option switch the file like `typro -f cmd`.
 If you want to use your own file, (1) use option (`-p` and `-f`) or (2) use environment variables.
