@@ -1,11 +1,17 @@
 # typro
-Typing practice game on console for professional
+Typing practice game on console with user's file
 
 ![Version](https://img.shields.io/github/v/tag/mzks/typro)
 [![Downloads](https://static.pepy.tech/personalized-badge/typro?period=total&units=international_system&left_color=grey&right_color=blue&left_text=Downloads)](https://pepy.tech/project/typro)
 ![Licence](https://img.shields.io/github/license/mzks/typro)
 
 ![typro](https://user-images.githubusercontent.com/12980386/116286769-9336b300-a7ca-11eb-9c6f-657106fda976.gif)
+
+# Features
+
+ - Working on console
+ - Training with user's file (code, document, etc.)
+ - Storing results and providing DataFrame of pandas
 
 
 ## Install and Usage
@@ -101,6 +107,13 @@ Please freely submit your contribution for GitHub pull request.
 
 
 ## Analysis
+
 As a default, the typing game generates output log in `LOGFILE` (default: `typro_results.csv`)
 The format is csv, pandas friendlly style.
 The numeric indexes mean the ASCII code of key which you mistouched.
+Users can obtain DataFrame as 
+```
+import typro
+df = typro.get_df()
+```
+Simple drawing is `plt.plot(df.index, df['speed'])`
