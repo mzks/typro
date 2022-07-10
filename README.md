@@ -41,6 +41,7 @@ optional arguments:
   -t TIME, --time TIME  Practice time (sec.)
   -p PATH, --path PATH  Path to training file
   -f FILE, --file FILE  Training filename
+  -w URL, --www URL     Training file URL
   -l LOGFILE, --logfile LOGFILE Log filename
   -m LOGPATH, --logpath LOGPATH Path to log file
   -u USER, --user USER  User name
@@ -86,6 +87,11 @@ typro -f root -o
 ```
 typro -p /path/to/your/file -f your_file
 ```
+#### training with file on www 
+```
+typro -w https://raw.githubusercontent.com/mzks/typro/main/typro/cli.py
+```
+The online file will be cached.
 
 #### show your weak keys
 ```

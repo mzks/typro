@@ -8,6 +8,8 @@ import random
 import sys
 import time
 import pkg_resources
+import requests
+from urllib.parse import urlparse
 from multiprocessing import Array, Event, Process, Value
 
 import numpy as np
@@ -23,6 +25,8 @@ def main():
                         help='Path to training file')
     parser.add_argument('-f', '--file', default='None',
                         help='Training filename')
+    parser.add_argument('-w', '--www', default='None',
+                        help='Use www file (https://raw.githubusercontent.com/...)')
     parser.add_argument('-l', '--logfile', default='typro_results.csv',
                         help='Log filename')
     parser.add_argument('-m', '--logpath', default='None',
@@ -303,7 +307,18 @@ def make_trainings(args):
     env_path = os.getenv('TYPRO_PATH')
     env_file = os.getenv('TYPRO_FILE')
     use_user_file = True
-    if not args.path is 'None': # Priority 1 : Use option
+    if not args.www is 'None':
+        url = args.www
+        filename = os.path.basename(url)
+        stored_files = pkg_resources.resource_listdir('typro', 'data')
+        if not filename in stored_files:
+            urlData = requests.get(url).content
+            sys_path = pkg_resources.resource_filename('typro', 'data')
+            with open(sys_path + '/' + filename ,mode='wb') as f:
+                f.write(urlData)
+        path = 'data'
+        use_user_file = False
+    elif not args.path is 'None': # Priority 1 : Use option
         path = args.path
     elif not env_path is None: # Priority 2 : Use environment variable
         path = env_path
@@ -311,7 +326,9 @@ def make_trainings(args):
         path = 'data'
         use_user_file = False
 
-    if not args.file is 'None':
+    if not args.www is 'None':
+        pass
+    elif not args.file is 'None':
         filename = args.file
     elif not env_file is None:
         filename = env_file
