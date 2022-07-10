@@ -46,7 +46,8 @@ def main():
                         help='Display lists of training file included')
 
     args = parser.parse_args()
-    training_list, path, filename, logpathfile = make_trainings(args)
+    length_limit = get_window_columnsize() - 16 # 16 is enough space for "Type this : "
+    training_list, path, filename, logpathfile = make_trainings(args, length_limit)
 
     if args.list:
         print('Predefined training file (e.g., typro -f cmd)')
@@ -147,6 +148,13 @@ def point_mistake(correct, char_list):
         else:
             mistake_str += '^'
     return mistake_str
+
+
+def get_window_columnsize():
+    stdscr = curses.initscr()
+    window_y_size = stdscr.getmaxyx()[1]
+    curses.endwin()
+    return window_y_size
 
 
 def load_input(start_event, timeout_event, timeout_msec, 
@@ -301,7 +309,7 @@ def show_summary(log_filename, user, date):
     print(df.sum(axis=0)[7:].sort_values(ascending=False)[:10])
 
 
-def make_trainings(args):
+def make_trainings(args, length_limit):
 
     # File
     env_path = os.getenv('TYPRO_PATH')
@@ -355,6 +363,7 @@ def make_trainings(args):
         training_list = st.split('\n')
         training_list = [s.strip() for s in training_list if len(s) > 0]
 
+    training_list = [t[:length_limit] for t in training_list]
 
     if not args.order:
         random.shuffle(training_list)
