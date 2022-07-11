@@ -47,6 +47,11 @@ def main():
 
     args = parser.parse_args()
     length_limit = get_window_columnsize() - 16 # 16 is enough space for "Type this : "
+
+    if length_limit < 30:
+        print('Window size is small to edit code')
+        return 0
+
     training_list, path, filename, logpathfile = make_trainings(args, length_limit)
 
     if args.list:
